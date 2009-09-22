@@ -1,0 +1,7 @@
+from django.conf.urls.defaults import *
+
+urlpatterns = patterns(
+    'experiments.views',
+    url(r'^goal/(?P<goal_name>.*)$', 'record_experiment_goal'),
+    url(r'^confirm_human/$', 'confirm_human')
+    )
