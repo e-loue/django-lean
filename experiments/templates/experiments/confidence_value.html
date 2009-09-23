@@ -1,0 +1,15 @@
+{% load variables filtertags %}
+{% ifnotequal confidence None %}
+  {% assign "high" to confidence_level %}
+  {% if confidence|is_lt:95 %}
+    {% assign "medium" to confidence_level %}
+  {% endif %}
+  {% if confidence|is_lt:90 %}
+    {% assign "low" to confidence_level %}
+  {% endif %}
+  <span class="{{confidence_level}}_confidence">
+    {{ confidence|stringformat:"d" }} %
+  </span>
+{% else %}
+  N/A
+{% endifnotequal %}

@@ -48,10 +48,12 @@ def record_experiment_goal(request, goal_name):
 
 
 @staff_member_required
-def list_experiments(request, template_name='ListExperiments.html'):
+def list_experiments(request, template_name='experiments/list_experiments.html'):
     """docstring for list_experiments"""
     context_var = {"experiments": Experiment.objects.order_by("-start_date"),
-                   "experiment_states": experiment_states}
+                   "experiment_states": experiment_states,
+                   "root_path": "../",
+                   "title": "Experiments"}
 
     return render_to_response(template_name, context_var,
                               context_instance=RequestContext(request))
@@ -59,7 +61,7 @@ def list_experiments(request, template_name='ListExperiments.html'):
 
 @staff_member_required
 def experiment_details(request, experiment_name,
-                       template_name="ExperimentDetails.html"):
+                       template_name="experiments/experiment_details.html"):
     """
     Displays a view with details for a specific experiment.
     Exposes:
@@ -144,7 +146,9 @@ def experiment_details(request, experiment_name,
             current_date = current_date - timedelta(1)
     context_var = {"experiment": experiment,
                    "daily_data": daily_data,
-                   "experiment_states": experiment_states}
+                   "experiment_states": experiment_states,
+                   "root_path": "../../",
+                   "title": "Experiment Report"}
 
     return render_to_response(template_name, context_var,
                               context_instance=RequestContext(request))

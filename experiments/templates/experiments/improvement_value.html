@@ -1,0 +1,12 @@
+{% load variables filtertags %}
+{% ifnotequal improvement None %}
+  {% assign "positive" to improvement_direction %}
+  {% if improvement|is_lt:0 %}
+    {% assign "negative" to improvement_direction %}
+  {% endif %}
+  <span class="{{improvement_direction}}_improvement">
+    {{ improvement|stringformat:"d" }} %
+  </span>
+  {% else %}
+N/A
+{% endifnotequal %}
