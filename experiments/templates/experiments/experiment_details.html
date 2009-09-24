@@ -101,10 +101,10 @@
   <h2>Data</h2>
   {% if daily_data %}
     {% include "experiments/conversion_summary.html" %}
-    {% include "experiments/activity_summary.html" %}
+    {% include "experiments/engagement_summary.html" %}
 
     {% include "experiments/conversion_details.html" %}
-    {% include "experiments/activity_details.html" %}
+    {% include "experiments/engagement_details.html" %}
   {% else %}
     {% if experiment.start_date %}
       <p>The experiment has been started, but no reports have been generated. If the experiment started today, this is normal - wait until tomorrow. Otherwise, verify that the scheduled report generator is running properly.</p>

@@ -4,8 +4,8 @@ l=logging.getLogger(__name__)
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
-from experiments.reports import (ActivityReportGenerator,
-                                       ConversionReportGenerator)
+from experiments.reports import (EngagementReportGenerator,
+                                 ConversionReportGenerator)
 
 class Command(BaseCommand):
     help = ('update_experiment_reports : Generate all the daily reports for'
@@ -20,7 +20,7 @@ class Command(BaseCommand):
 
         engagement_calculator = _load_function(settings.LEAN_ENGAGEMENT_CALCULATOR)
 
-        ActivityReportGenerator(activity_score_calculator=engagement_calculator).generate_all_daily_reports()
+        EngagementReportGenerator(engagement_score_calculator=engagement_calculator).generate_all_daily_reports()
         ConversionReportGenerator().generate_all_daily_reports()
 
 def _load_function(fully_qualified_name):

@@ -10,7 +10,7 @@ from django.template import Context, RequestContext
 from django.views.decorators.cache import never_cache
 
 from experiments.models import (Experiment, Participant, GoalRecord,
-                                      DailyActivityReport)
+                                DailyEngagementReport)
 from experiments.reports import get_conversion_data
 from experiments.util import WebUser
 
@@ -68,7 +68,7 @@ def experiment_details(request, experiment_name,
         "experiment" (the experiment model)
         "daily_data" (An array of dicts with:
             {"date",
-             "activity_data": {
+             "engagement_data": {
                "control_group_size",
                "control_group_score",
                "test_group_size",
@@ -113,36 +113,36 @@ def experiment_details(request, experiment_name,
             end_date = date.today() - timedelta(days=1)
         current_date = end_date
         while current_date >= start_date:
-            daily_activity_data = None
+            daily_engagement_data = None
             daily_conversion_data = None
-            activity_report = None
+            engagement_report = None
             conversion_report = None
             try:
-                activity_report = DailyActivityReport.objects.get(experiment=experiment,
+                engagement_report = DailyEngagementReport.objects.get(experiment=experiment,
                                                                   date=current_date)
             except:
-                l.warn("No activity report for date %s and experiment %s" %
+                l.warn("No engagement report for date %s and experiment %s" %
                        (current_date, experiment.name))
             daily_conversion_data = get_conversion_data(experiment, current_date)
     
-            if activity_report:
+            if engagement_report:
                 improvement = None
     
-                if activity_report.control_score > 0:
-                    improvement = ((activity_report.test_score -
-                                    activity_report.control_score) /
-                                   activity_report.control_score) * 100
-                daily_activity_data = {
-                    "control_group_size": activity_report.control_group_size,
-                    "control_group_score": activity_report.control_score,
-                    "test_group_size": activity_report.test_group_size,
-                    "test_group_score": activity_report.test_score,
+                if engagement_report.control_score > 0:
+                    improvement = ((engagement_report.test_score -
+                                    engagement_report.control_score) /
+                                   engagement_report.control_score) * 100
+                daily_engagement_data = {
+                    "control_group_size": engagement_report.control_group_size,
+                    "control_group_score": engagement_report.control_score,
+                    "test_group_size": engagement_report.test_group_size,
+                    "test_group_score": engagement_report.test_score,
                     "test_group_improvement": improvement,
-                    "confidence": activity_report.confidence}
+                    "confidence": engagement_report.confidence}
             daily_data.append({
                     "date": current_date,
                     "conversion_data": daily_conversion_data,
-                    "activity_data": daily_activity_data})
+                    "engagement_data": daily_engagement_data})
             current_date = current_date - timedelta(1)
     context_var = {"experiment": experiment,
                    "daily_data": daily_data,

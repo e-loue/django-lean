@@ -3,10 +3,10 @@ l = logging.getLogger(__name__)
 
 from datetime import datetime, time, timedelta, date
 
-from experiments.models import (DailyActivityReport, DailyConversionReport,
-                                      DailyConversionReportGoalData,
-                                      Experiment, Participant, GoalRecord,
-                                      GoalType, AnonymousVisitor)
+from experiments.models import (DailyEngagementReport, DailyConversionReport,
+                                DailyConversionReportGoalData,
+                                Experiment, Participant, GoalRecord,
+                                GoalType, AnonymousVisitor)
 from experiments.significance import chi_square_p_value
 
 def calculate_participant_conversion(participant, goal_type, report_date):
@@ -232,11 +232,11 @@ class ConversionReportGenerator(BaseReportGenerator):
                 confidence=confidence)
 
 
-class ActivityReportGenerator(BaseReportGenerator):
+class EngagementReportGenerator(BaseReportGenerator):
 
-    def __init__(self, activity_score_calculator):
-        BaseReportGenerator.__init__(self, DailyActivityReport)
-        self.activity_score_calculator = activity_score_calculator
+    def __init__(self, engagement_score_calculator):
+        BaseReportGenerator.__init__(self, DailyEngagementReport)
+        self.engagement_score_calculator = engagement_score_calculator
 
     def __generate_scores(self, experiment, group, report_date):
         """
@@ -250,15 +250,15 @@ class ActivityReportGenerator(BaseReportGenerator):
 
         scores = []
         for participant in participants:
-            scores.append(self.activity_score_calculator.
-                          calculate_user_activity_score(participant.user,
-                                                        participant.enrollment_date,
-                                                        report_date))
+            scores.append(self.engagement_score_calculator.
+                          calculate_user_engagement_score(participant.user,
+                                                          participant.enrollment_date,
+                                                          report_date))
 
         return scores
 
     def generate_daily_report_for_experiment(self, experiment, report_date):
-        """ Generates a single activity report """
+        """ Generates a single engagement report """
         from numpy import mean, isnan
         from scipy.stats import ttest_ind
         test_group_scores = self.__generate_scores(
@@ -281,10 +281,11 @@ class ActivityReportGenerator(BaseReportGenerator):
             else:
                 confidence = (1 - p_value) * 100
 
-        DailyActivityReport.objects.create(experiment=experiment,
-                                           date=report_date,
-                                           test_score=test_group_mean,
-                                           control_score=control_group_mean,
-                                           test_group_size=len(test_group_scores),
-                                           control_group_size=len(control_group_scores),
-                                           confidence=confidence)
+        DailyEngagementReport.objects.create(
+            experiment=experiment,
+            date=report_date,
+            test_score=test_group_mean,
+            control_score=control_group_mean,
+            test_group_size=len(test_group_scores),
+            control_group_size=len(control_group_scores),
+            confidence=confidence)

@@ -9,12 +9,12 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.test import TestCase
 
-from experiments.models import (Experiment, DailyActivityReport,
+from experiments.models import (Experiment, DailyEngagementReport,
                                 DailyConversionReport,
                                 DailyConversionReportGoalData,
                                 Participant, AnonymousVisitor,
                                 GoalType, GoalRecord)
-from experiments.reports import (ActivityReportGenerator,
+from experiments.reports import (EngagementReportGenerator,
                                  ConversionReportGenerator,
                                  calculate_participant_conversion,
                                  get_conversion_data,
@@ -53,7 +53,7 @@ class TestDailyReports(TestCase):
                                       timedelta(days=3))
         self.other_experiment.save()
 
-    def testDailyActivityReport(self):
+    def testDailyEngagementReport(self):
         users_test = []
         users_control = []
 
@@ -74,7 +74,7 @@ class TestDailyReports(TestCase):
         # users_<test|control>[0] were enrolled today, [1] 1 day ago, etc.
 
         report_date = date.today() - timedelta(days=1)
-        expected_activity_score_calls = {
+        expected_engagement_score_calls = {
             (users_test[1], date.today() - timedelta(days=1), report_date): 3.2,
             (users_test[2], date.today() - timedelta(days=2), report_date): 2.5,
             (users_test[3], date.today() - timedelta(days=3), report_date): 4.1,
@@ -86,21 +86,21 @@ class TestDailyReports(TestCase):
 
         test_case = self
 
-        class ActivityScoreCalculatorStub(object):
+        class EngagementScoreCalculatorStub(object):
 
-            def calculate_user_activity_score(self, user,
+            def calculate_user_engagement_score(self, user,
                                               start_date, end_date):
                 test_case.assertNotEquals(user, None)
-                test_case.assertTrue(expected_activity_score_calls.
+                test_case.assertTrue(expected_engagement_score_calls.
                                      has_key((user, start_date, end_date)))
-                return expected_activity_score_calls[(user,
+                return expected_engagement_score_calls[(user,
                                                      start_date, end_date)]
 
-        (ActivityReportGenerator(ActivityScoreCalculatorStub()).
+        (EngagementReportGenerator(EngagementScoreCalculatorStub()).
            generate_daily_report_for_experiment(self.experiment, report_date))
 
 
-        experiment_report = DailyActivityReport.objects.get(
+        experiment_report = DailyEngagementReport.objects.get(
                                 experiment=self.experiment, date=report_date)
         self.assertAlmostEqual((3.2 + 2.5 + 4.1 + 0)/4.0,
                                 experiment_report.test_score)
@@ -115,10 +115,10 @@ class TestDailyReports(TestCase):
         mocker.ReplayAll()
 
         report_date = date.today()
-        ActivityReportGenerator(activity_score_calculator=engagement_calculator).generate_daily_report_for_experiment(
+        EngagementReportGenerator(engagement_score_calculator=engagement_calculator).generate_daily_report_for_experiment(
             self.other_experiment, report_date)
 
-        experiment_report = DailyActivityReport.objects.get(
+        experiment_report = DailyEngagementReport.objects.get(
             experiment=self.other_experiment, date=report_date)
 
         mocker.VerifyAll()
@@ -128,40 +128,40 @@ class TestDailyReports(TestCase):
         self.assertEquals(0, experiment_report.test_group_size)
         self.assertEquals(0, experiment_report.control_group_size)
 
-    def testGenerateAllDailyActivityReports(self):
+    def testGenerateAllDailyEngagementReports(self):
         class DummyEngagementCalculator(object):
-            def calculate_user_activity_score(self, user, start_date, end_date):
+            def calculate_user_engagement_score(self, user, start_date, end_date):
                 return 7
-        activity_report_generator = ActivityReportGenerator(activity_score_calculator=DummyEngagementCalculator())
-        activity_report_generator.generate_daily_report_for_experiment(
+        engagement_report_generator = EngagementReportGenerator(engagement_score_calculator=DummyEngagementCalculator())
+        engagement_report_generator.generate_daily_report_for_experiment(
                             self.experiment, date.today() - timedelta(days=2))
-        activity_report_generator.generate_daily_report_for_experiment(
+        engagement_report_generator.generate_daily_report_for_experiment(
                             self.experiment, date.today() - timedelta(days=3))
-        activity_report_generator.generate_all_daily_reports()
-        DailyActivityReport.objects.get(experiment=self.experiment,
+        engagement_report_generator.generate_all_daily_reports()
+        DailyEngagementReport.objects.get(experiment=self.experiment,
                             date=date.today() - timedelta(days=1))
-        DailyActivityReport.objects.get(experiment=self.experiment,
+        DailyEngagementReport.objects.get(experiment=self.experiment,
                             date=date.today() - timedelta(days=2))
-        DailyActivityReport.objects.get(experiment=self.experiment,
+        DailyEngagementReport.objects.get(experiment=self.experiment,
                             date=date.today() - timedelta(days=3))
-        DailyActivityReport.objects.get(experiment=self.experiment,
+        DailyEngagementReport.objects.get(experiment=self.experiment,
                             date=date.today() - timedelta(days=4))
-        DailyActivityReport.objects.get(experiment=self.experiment,
+        DailyEngagementReport.objects.get(experiment=self.experiment,
                             date=date.today() - timedelta(days=5))
-        self.assertEquals(5, DailyActivityReport.objects.filter(
+        self.assertEquals(5, DailyEngagementReport.objects.filter(
                                         experiment=self.experiment).count())
-        DailyActivityReport.objects.get(experiment=self.other_experiment,
+        DailyEngagementReport.objects.get(experiment=self.other_experiment,
                           date=date.today() - timedelta(days=3))
-        DailyActivityReport.objects.get(experiment=self.other_experiment,
+        DailyEngagementReport.objects.get(experiment=self.other_experiment,
                           date=date.today() - timedelta(days=4))
-        DailyActivityReport.objects.get(experiment=self.other_experiment,
+        DailyEngagementReport.objects.get(experiment=self.other_experiment,
                           date=date.today() - timedelta(days=5))
-        DailyActivityReport.objects.get(experiment=self.other_experiment,
+        DailyEngagementReport.objects.get(experiment=self.other_experiment,
                           date=date.today() - timedelta(days=6))
-        DailyActivityReport.objects.get(experiment=self.other_experiment,
+        DailyEngagementReport.objects.get(experiment=self.other_experiment,
                           date=date.today() - timedelta(days=7))
 
-        self.assertEquals(5, DailyActivityReport.objects.filter(
+        self.assertEquals(5, DailyEngagementReport.objects.filter(
                                     experiment=self.other_experiment).count())
 
     def create_goal_record(self, record_datetime, anonymous_visitor, goal_type):

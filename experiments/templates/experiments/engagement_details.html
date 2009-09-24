@@ -1,4 +1,4 @@
-<h3>Activity Details</h3>
+<h3>Engagement Details</h3>
 <table>
   <thead>
     <tr>
@@ -15,18 +15,18 @@
     {% for report in daily_data %}
     <tr class="{% cycle "row1" "row2" %}">
       <th scope="row">{{ report.date }}</th>
-      {% if report.activity_data %}
-      <td>{{ report.activity_data.control_group_size }}</td>
-      <td>{{ report.activity_data.control_group_score }}</td>
-      <td>{{ report.activity_data.test_group_size }}</td>
-      <td>{{ report.activity_data.test_group_score }}</td>
+      {% if report.engagement_data %}
+      <td>{{ report.engagement_data.control_group_size }}</td>
+      <td>{{ report.engagement_data.control_group_score }}</td>
+      <td>{{ report.engagement_data.test_group_size }}</td>
+      <td>{{ report.engagement_data.test_group_score }}</td>
       <td>
-        {% with report.activity_data.test_group_improvement as improvement %}
+        {% with report.engagement_data.test_group_improvement as improvement %}
           {% include "experiments/improvement_value.html" %}
         {% endwith %}
       </td>
       <td>
-        {% with report.activity_data.confidence as confidence %}
+        {% with report.engagement_data.confidence as confidence %}
           {% include "experiments/confidence_value.html" %}
         {% endwith %}
       </td>

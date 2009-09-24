@@ -270,7 +270,7 @@ class Participant(models.Model):
                                 "`anonymous_visitor` or `user`.")
 
 
-class DailyActivityReport(models.Model):
+class DailyEngagementReport(models.Model):
     """Hold the scores for a given experiment on a given day"""
 
     date = models.DateField(db_index=True)

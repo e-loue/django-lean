@@ -7,9 +7,9 @@ from django.test import TestCase
 from django.test.client import Client
 
 from experiments.models import (Experiment, Participant,
-                                      DailyActivityReport, AnonymousVisitor,
-                                      GoalType, DailyConversionReport,
-                                      DailyConversionReportGoalData)
+                                DailyEngagementReport, AnonymousVisitor,
+                                GoalType, DailyConversionReport,
+                                DailyConversionReportGoalData)
 from experiments.tests.utils import create_user_in_group
 
 
@@ -56,13 +56,13 @@ class TestExperimentViews(object):
                       for i in range(3)]
 
         for i in range(1, 6):
-            DailyActivityReport.objects.create(date=days_ago(i),
-                                               experiment=self.experiment1,
-                                               control_score=3.2,
-                                               test_score=2.3,
-                                               control_group_size=3,
-                                               test_group_size=5,
-                                               confidence=93.2)
+            DailyEngagementReport.objects.create(date=days_ago(i),
+                                                 experiment=self.experiment1,
+                                                 control_score=3.2,
+                                                 test_score=2.3,
+                                                 control_group_size=3,
+                                                 test_group_size=5,
+                                                 confidence=93.2)
             conversion_report = DailyConversionReport.objects.create(
                 date=days_ago(i),
                 experiment=self.experiment1,
@@ -174,26 +174,26 @@ class TestExperimentViews(object):
                            [u'Any', u'9 (33.3 %)', u'12 (30.8 %)', u'-7 %',
                             u'87 %']],
                           conversion_summary[1])
-        activity_summary = tables.pop(0)
+        engagement_summary = tables.pop(0)
         self.assertEquals([u'&nbsp;', u'Control Group', u'Test Group',
                            u'Improvement', u'Confidence'],
-                          activity_summary[0])
+                          engagement_summary[0])
         self.assertEquals([[u'Participants', u'3', u'5', u'&nbsp;', u'&nbsp;'],
-                           [u'Activity Score', u'3.2', u'2.3', u'-28 %',
+                           [u'Engagement Score', u'3.2', u'2.3', u'-28 %',
                             u'93 %']],
-                          activity_summary[1])
+                          engagement_summary[1])
         conversion_details = tables.pop(0)
         self.assertTrue(conversion_details[0])
         self.assertTrue(conversion_details[1])
-        activity_details = tables.pop(0)
+        engagement_details = tables.pop(0)
         self.assertEquals([u'Report Date', u'Control Group Size',
                            u'Control Group Score', u'Test Group Size',
                            u'Test Group Score', u'Test Group Improvement',
                            u'Confidence'],
-                          activity_details[0])
+                          engagement_details[0])
         self.assertEquals([unicode(days_ago(1)), u'3', u'3.2', u'5', u'2.3',
                            u'-28 %', u'93 %'],
-                          activity_details[1][0])
+                          engagement_details[1][0])
         self.assertEquals([], tables)
 
     def testVerifyHuman(self):

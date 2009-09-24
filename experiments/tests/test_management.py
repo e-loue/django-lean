@@ -6,8 +6,8 @@ from datetime import timedelta
 from django.core.management.base import CommandError
 from django.test import TestCase
 
-from experiments.models import (Experiment, DailyActivityReport,
-                                      DailyConversionReport)
+from experiments.models import (Experiment, DailyEngagementReport,
+                                DailyConversionReport)
 from experiments.management.commands import update_experiment_reports
 
 
@@ -36,7 +36,7 @@ class TestManagement(TestCase):
         self.runner(['manage.py', 'update_experiment_reports'])
 
         #Make sure they were generated
-        self.assertEquals(5, DailyActivityReport.objects.filter(
+        self.assertEquals(5, DailyEngagementReport.objects.filter(
                 experiment=self.experiment).count())
         self.assertEquals(5, DailyConversionReport.objects.filter(
                 experiment=self.experiment).count())
