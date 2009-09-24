@@ -8,16 +8,10 @@ class Migration:
     no_dry_run = True
 
     def forwards(self, orm):
-        orm.GoalType(name="buy-deck").save()
-        orm.GoalType(name="claim-deck").save()
-        orm.GoalType(name="confirm-card").save()
-        orm.GoalType(name="register").save()
+        pass
     
     def backwards(self, orm):
-        orm.GoalType.objects.filter(name="register").delete()
-        orm.GoalType.objects.filter(name="confirm-card").delete()
-        orm.GoalType.objects.filter(name="claim-deck").delete()
-        orm.GoalType.objects.filter(name="buy-deck").delete()
+        pass
     
     models = {
         'auth.group': {
