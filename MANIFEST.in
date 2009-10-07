@@ -1,0 +1,5 @@
+include LICENSE
+include AUTHORS
+include README
+
+recursive-include experiments/templates *.html *.js
