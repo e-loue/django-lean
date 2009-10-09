@@ -14,8 +14,15 @@ setup(
     name='django-lean',
     version='0.1',
     author='Akoha, Inc.',
-    description=description,
-    long_description=long_description,
+    author_email='django-lean@akoha.com',
+    description=('A framework for performing and analyzing split-test ' +
+                 'experiments in Django applications.'),
+    long_description=('django-lean aims to be a collection of tools for ' +
+                      'Lean Startups using the Django platform. Currently ' +
+                      'it provides a framework for implementing split-test ' +
+                      'experiments in JavaScript, Python, or Django template ' +
+                      'code along with administrative views for analyzing ' +
+                      'the results of those experiments.'),
     license='BSD',
     platforms=['any'],
     url='http://bitbucket.org/akoha/django-lean/wiki/Home',
