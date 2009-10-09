@@ -12,7 +12,7 @@ if __name__ == '__main__':
                 'experiments.tests.run_tests.SimpleEngagementCalculator'),
             DATABASE_ENGINE='sqlite3',
             DATABASE_NAME=':memory:',
-            DATABASE_SUPPORTS_TRANSACTIONS=True,
+            DATABASE_SUPPORTS_TRANSACTIONS=False,
             INSTALLED_APPS=[
                 'django.contrib.auth',
                 'django.contrib.contenttypes',
@@ -27,9 +27,7 @@ if __name__ == '__main__':
                 "django.core.context_processors.request")
             )
 
-	from experiments.tests import *
-	import unittest
 	from django.core.management import call_command
         
 	call_command('syncdb', interactive=False)
-	unittest.main()
+	call_command('test', 'experiments')
