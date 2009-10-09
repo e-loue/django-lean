@@ -30,7 +30,7 @@ setup(
         'Development Status :: 4 - Beta',
         'Environment :: Web Environment',
         'Framework :: Django',
-        'Intended Audiencee :: Developers',
+        'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
@@ -48,5 +48,5 @@ setup(
        'experiments': ['templates/experiments/*.html'],
        'experiments.tests': ['data/*.json']
        },
-    install_requires=["django", "beautifulsoup", "mox"],
+    install_requires=['django >= 1.0', 'BeautifulSoup', 'mox'],
     )
