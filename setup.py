@@ -39,5 +39,7 @@ setup(
         ],
     package_data={
        'experiments': ['templates/experiments/*.html'],
+       'experiments.tests': ['data/*.json']
        },
+    install_requires=["django", "beautifulsoup", "mox"],
     )
