@@ -82,10 +82,20 @@ class WebUser(object):
             return added_enrollments.get(experiment_name, None)
 
 
+class StaticUser(WebUser):
+    def __init__(self):
+        from django.contrib.auth.models import AnonymousUser
+        self.user = AnonymousUser()
+        self.session = None
+
+
 class WebUserFactory(object):
     """
     Factory that creates 'ExperimentUser' objects from a web context.
     """
 
     def create_user(self, context):
-        return WebUser(context['request'])
+        request = context.get('request', None)
+        if request is None:
+            return StaticUser()
+        return WebUser(request)
