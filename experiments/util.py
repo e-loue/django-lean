@@ -86,7 +86,7 @@ class StaticUser(WebUser):
     def __init__(self):
         from django.contrib.auth.models import AnonymousUser
         self.user = AnonymousUser()
-        self.session = None
+        self.session = {}
 
 
 class WebUserFactory(object):
