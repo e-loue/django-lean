@@ -17,9 +17,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         if len(args):
             raise CommandError("This command does not take any arguments")
-
-        engagement_calculator = _load_function(settings.LEAN_ENGAGEMENT_CALCULATOR)
-
+        engagement_calculator = settings.LEAN_ENGAGEMENT_CALCULATOR
+        engagement_calculator = _load_function(engagement_calculator)()
         EngagementReportGenerator(engagement_score_calculator=engagement_calculator).generate_all_daily_reports()
         ConversionReportGenerator().generate_all_daily_reports()
 
