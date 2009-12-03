@@ -1,12 +1,15 @@
-{% load variables filtertags %}
+{% load smartif %}
+
 {% ifnotequal improvement None %}
-  {% assign "positive" to improvement_direction %}
-  {% if improvement|is_lt:0 %}
-    {% assign "negative" to improvement_direction %}
-  {% endif %}
-  <span class="{{improvement_direction}}_improvement">
+  {% if improvement < 0 %}
+   <span class="negative_improvement">
     {{ improvement|stringformat:"d" }} %
-  </span>
+   </span>
   {% else %}
+   <span class="positive_improvement">
+    {{ improvement|stringformat:"d" }} %
+   </span>
+  {% endif %}
+{% else %}
 N/A
 {% endifnotequal %}

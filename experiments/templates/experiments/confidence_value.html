@@ -1,15 +1,21 @@
-{% load variables filtertags %}
+{% load smartif %}
+
 {% ifnotequal confidence None %}
-  {% assign "high" to confidence_level %}
-  {% if confidence|is_lt:95 %}
-    {% assign "medium" to confidence_level %}
-  {% endif %}
-  {% if confidence|is_lt:90 %}
-    {% assign "low" to confidence_level %}
-  {% endif %}
-  <span class="{{confidence_level}}_confidence">
-    {{ confidence|stringformat:"d" }} %
+ {% if confidence >= 95 %}
+  <span class="high_confidence">
+   {{ confidence|stringformat:"d" }} %
   </span>
+ {% endif %}
+ {% if confidence < 95 and confidence >= 90 %}
+  <span class="medium_confidence">
+   {{ confidence|stringformat:"d" }} %
+  </span>
+ {% endif %}
+ {% if confidence < 90 %}
+  <span class="low_confidence">
+   {{ confidence|stringformat:"d" }} %
+  </span>
+ {% endif %}
 {% else %}
-  N/A
+   N/A
 {% endifnotequal %}
