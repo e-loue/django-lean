@@ -1,13 +1,11 @@
-from django.db import models
+# -*- coding: utf-8 -*-
 from django.test import TestCase
-from django.contrib.auth.models import User
-from experiments.models import Experiment
-from experiments.tests.utils import TestUser
 from django.conf import settings
 
+from experiments.models import Experiment
+from experiments.tests.utils import TestUser
 
 class TestParticipants(TestCase):
-
     def testDisabledExperiment(self):
         # disabled test (unenrolled user)
         experiment = Experiment(name="disabled")
@@ -117,3 +115,4 @@ class TestParticipants(TestCase):
         self.assertTrue(Experiment.control("enabled", test_user))
         self.assertFalse(Experiment.test("enabled", control_user))
         self.assertFalse(Experiment.test("enabled", test_user))
+    

@@ -1,12 +1,13 @@
+# -*- coding: utf-8 -*-
 import logging
 l = logging.getLogger(__name__)
 
-from datetime import datetime, time, timedelta, date
+from datetime import datetime, timedelta
 
 from experiments.models import (DailyEngagementReport, DailyConversionReport,
                                 DailyConversionReportGoalData,
                                 Experiment, Participant, GoalRecord,
-                                GoalType, AnonymousVisitor)
+                                GoalType)
 from experiments.significance import chi_square_p_value
 
 def calculate_participant_conversion(participant, goal_type, report_date):
@@ -26,7 +27,7 @@ def calculate_participant_conversion(participant, goal_type, report_date):
             created__gte=participant.enrollment_date,
             created__lt=(report_date + timedelta(days=1)),
             anonymous_visitor=participant.anonymous_visitor).count()
-
+    
     return count and 1 or 0
 
 def calculate_goal_type_conversion(goal_type,
@@ -91,23 +92,22 @@ def get_conversion_data(experiment, date):
     }
     
     Otherwise, returns 'None'
-
+    
     <goal_type_name> will map to None if a report was generated for a given day, but no goal type report was generated for <goal_type_name>
     """
-
     report_set = DailyConversionReport.objects.filter(experiment=experiment, date=date)
     if report_set.count() != 1:
         l.warn("No conversion report for date %s and experiment %s" %
                (date, experiment.name))
         return None
-
+    
     report = report_set[0]
     test_rate = __rate(report.overall_test_conversion, report.test_group_size)
     control_rate = __rate(report.overall_control_conversion, report.control_group_size)
     improvement = __improvement(test_rate, control_rate)
-
+    
     all_goal_types = GoalType.objects.all()
-
+    
     goal_types_data = {}
     for goal_type in all_goal_types:
         goal_type_data_set = report.dailyconversionreportgoaldata_set.filter(goal_type=goal_type)
@@ -141,16 +141,12 @@ def get_conversion_data(experiment, date):
             "confidence": report.confidence
             }
         }
-
     return data
 
-
 class BaseReportGenerator(object):
-
     def __init__(self, report_model_class):
-        """ """
         self.report_model_class = report_model_class
-
+    
     def generate_all_daily_reports(self):
         """ Generates all missing reports up until yesterday """
         experiments = Experiment.objects.filter(start_date__isnull=False)
@@ -160,7 +156,7 @@ class BaseReportGenerator(object):
             current_date = start_date
             end_date = experiment.end_date or yesterday
             end_date = min(end_date, yesterday)
-
+            
             # get or create the report for all the days of the experiment
             while current_date <= end_date:
                 if (self.report_model_class.objects.filter(
@@ -168,44 +164,42 @@ class BaseReportGenerator(object):
                     daily_report = self.generate_daily_report_for_experiment(
                         experiment=experiment, report_date=current_date)
                 current_date = current_date + timedelta(days=1)
-
+    
 
 class ConversionReportGenerator(BaseReportGenerator):
-
     def __init__(self, goal_type_conversion_calculator=calculate_goal_type_conversion,
                  participant_finder=find_experiment_group_participants):
         BaseReportGenerator.__init__(self, DailyConversionReport)
         self.goal_type_conversion_calculator = goal_type_conversion_calculator
         self.participant_finder = participant_finder
-
+    
     def __confidence(self, a_count, a_conversion, b_count, b_conversion):
         contingency_table = [[a_count - a_conversion, a_conversion],
                              [b_count - b_conversion, b_conversion]]
-        
+    
         chi_square, p_value = chi_square_p_value(contingency_table)
         if p_value:
             return (1 - p_value) * 100
         else:
             return None
-
+    
     def generate_daily_report_for_experiment(self, experiment, report_date):
         """ Generates a single conversion report """
-
         control_participants = self.participant_finder(Participant.CONTROL_GROUP,
                                                        experiment, report_date)
         test_participants = self.participant_finder(Participant.TEST_GROUP,
                                                     experiment, report_date)
         control_participant_count = control_participants.count()
         test_participant_count = test_participants.count()
-
+        
         total_control_conversion = self.goal_type_conversion_calculator(
             None, control_participants, report_date)
         total_test_conversion = self.goal_type_conversion_calculator(
             None, test_participants, report_date)
-
+        
         confidence = self.__confidence(test_participant_count, total_test_conversion,
                                        control_participant_count, total_control_conversion)
-
+        
         report = DailyConversionReport.objects.create(
             experiment=experiment,
             date=report_date,
@@ -214,7 +208,7 @@ class ConversionReportGenerator(BaseReportGenerator):
             overall_test_conversion=total_test_conversion,
             overall_control_conversion=total_control_conversion,
             confidence=confidence)
-
+        
         for goal_type in GoalType.objects.all():
             control_count = self.goal_type_conversion_calculator(goal_type,
                                                                  control_participants,
@@ -222,7 +216,6 @@ class ConversionReportGenerator(BaseReportGenerator):
             test_count = self.goal_type_conversion_calculator(goal_type,
                                                               test_participants,
                                                               report_date)
-
             confidence = self.__confidence(test_participant_count, test_count,
                                            control_participant_count, control_count)
             DailyConversionReportGoalData.objects.create(
@@ -230,14 +223,13 @@ class ConversionReportGenerator(BaseReportGenerator):
                 test_conversion=test_count,
                 control_conversion=control_count,
                 confidence=confidence)
-
+    
 
 class EngagementReportGenerator(BaseReportGenerator):
-
     def __init__(self, engagement_score_calculator):
         BaseReportGenerator.__init__(self, DailyEngagementReport)
         self.engagement_score_calculator = engagement_score_calculator
-
+    
     def __generate_scores(self, experiment, group, report_date):
         """
         Returns an array of all scores for participants in the given group in the
@@ -247,29 +239,30 @@ class EngagementReportGenerator(BaseReportGenerator):
                             experiment=experiment,
                             group=group,
                             enrollment_date__lte=report_date).exclude(user=None)
-
         scores = []
         for participant in participants:
             scores.append(self.engagement_score_calculator.
                           calculate_user_engagement_score(participant.user,
                                                           participant.enrollment_date,
                                                           report_date))
-
         return scores
-
+    
     def generate_daily_report_for_experiment(self, experiment, report_date):
         """ Generates a single engagement report """
-        from numpy import mean, isnan
-        from scipy.stats import ttest_ind
+        try:
+            from numpy import mean, isnan
+            from scipy.stats import ttest_ind
+        except ImportError:
+            from experiments.stats import mean, isnan, ttest_ind 
         test_group_scores = self.__generate_scores(
             experiment, Participant.TEST_GROUP, report_date)
         control_group_scores = self.__generate_scores(
             experiment, Participant.CONTROL_GROUP, report_date)
-
+        
         test_group_mean = None
         control_group_mean = None
         confidence = None
-
+        
         if len(test_group_scores):
             test_group_mean = mean(test_group_scores)
         if len(control_group_scores):
@@ -280,7 +273,7 @@ class EngagementReportGenerator(BaseReportGenerator):
                 confidence = None
             else:
                 confidence = (1 - p_value) * 100
-
+        
         DailyEngagementReport.objects.create(
             experiment=experiment,
             date=report_date,
@@ -289,3 +282,4 @@ class EngagementReportGenerator(BaseReportGenerator):
             test_group_size=len(test_group_scores),
             control_group_size=len(control_group_scores),
             confidence=confidence)
+    
