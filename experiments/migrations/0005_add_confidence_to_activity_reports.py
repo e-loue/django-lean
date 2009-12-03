@@ -1,12 +1,12 @@
-
+# -*- coding: utf-8 -*-
 from south.db import db
+
 from django.db import models
+
 from experiments.models import *
 
 class Migration:
-    
     def forwards(self, orm):
-        
         # Adding field 'DailyReport.confidence'
         db.add_column('experiments_dailyreport', 'confidence', orm['experiments.dailyreport:confidence'])
         
@@ -17,11 +17,8 @@ class Migration:
         # Changing field 'DailyReport.control_score'
         # (to signature: django.db.models.fields.FloatField(null=True))
         db.alter_column('experiments_dailyreport', 'control_score', orm['experiments.dailyreport:control_score'])
-        
-    
     
     def backwards(self, orm):
-        
         # Deleting field 'DailyReport.confidence'
         db.delete_column('experiments_dailyreport', 'confidence')
         
@@ -32,8 +29,6 @@ class Migration:
         # Changing field 'DailyReport.control_score'
         # (to signature: django.db.models.fields.FloatField())
         db.alter_column('experiments_dailyreport', 'control_score', orm['experiments.dailyreport:control_score'])
-        
-    
     
     models = {
         'auth.group': {

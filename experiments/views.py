@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import logging
 l = logging.getLogger(__name__)
 
@@ -6,17 +7,18 @@ from datetime import date, timedelta
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
-from django.template import Context, RequestContext
+from django.template import RequestContext
 from django.views.decorators.cache import never_cache
 
-from experiments.models import (Experiment, Participant, GoalRecord,
-                                DailyEngagementReport)
+from experiments.models import Experiment, GoalRecord, DailyEngagementReport
 from experiments.reports import get_conversion_data
-from experiments.util import WebUser
+from experiments.utils import WebUser
 
-experiment_states= {"enabled": Experiment.ENABLED_STATE,
-  "disabled": Experiment.DISABLED_STATE,
-  "promoted": Experiment.PROMOTED_STATE}
+experiment_states= {
+    "enabled": Experiment.ENABLED_STATE,
+    "disabled": Experiment.DISABLED_STATE,
+    "promoted": Experiment.PROMOTED_STATE
+}
 
 TRANSPARENT_1X1_PNG = \
 ("\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d\x49\x48\x44\x52"
@@ -29,13 +31,11 @@ TRANSPARENT_1X1_PNG = \
  "\x60\x00\x08\x30\x00\x00\x02\x00\x01\x4f\x6d\x59\xe1\x00\x00\x00"
  "\x00\x49\x45\x4e\x44\xae\x42\x60\x82\x00")
 
-
 @never_cache
 def confirm_human(request):
     experiment_user = WebUser(request)
     experiment_user.confirm_human()
     return HttpResponse(status=204)
-
 
 @never_cache
 def record_experiment_goal(request, goal_name):
@@ -43,9 +43,8 @@ def record_experiment_goal(request, goal_name):
         GoalRecord.record(goal_name, WebUser(request))
     except Exception, e:
         l.warn("unknown goal type '%s': %s" % (goal_name, e))
-
+    
     return HttpResponse(TRANSPARENT_1X1_PNG, mimetype="image/png")
-
 
 @staff_member_required
 def list_experiments(request, template_name='experiments/list_experiments.html'):
@@ -54,10 +53,9 @@ def list_experiments(request, template_name='experiments/list_experiments.html')
                    "experiment_states": experiment_states,
                    "root_path": "../",
                    "title": "Experiments"}
-
+    
     return render_to_response(template_name, context_var,
                               context_instance=RequestContext(request))
-
 
 @staff_member_required
 def experiment_details(request, experiment_name,
@@ -99,12 +97,12 @@ def experiment_details(request, experiment_name,
                 }
                }
              })
-
+    
     """
     experiment = get_object_or_404(Experiment, name=experiment_name)
-
+    
     daily_data = []
-
+    
     start_date = experiment.start_date
     if experiment.start_date:
         if experiment.end_date:
@@ -124,10 +122,10 @@ def experiment_details(request, experiment_name,
                 l.warn("No engagement report for date %s and experiment %s" %
                        (current_date, experiment.name))
             daily_conversion_data = get_conversion_data(experiment, current_date)
-    
+            
             if engagement_report:
                 improvement = None
-    
+                
                 if engagement_report.control_score > 0:
                     improvement = ((engagement_report.test_score -
                                     engagement_report.control_score) /
@@ -149,6 +147,5 @@ def experiment_details(request, experiment_name,
                    "experiment_states": experiment_states,
                    "root_path": "../../",
                    "title": "Experiment Report"}
-
     return render_to_response(template_name, context_var,
                               context_instance=RequestContext(request))

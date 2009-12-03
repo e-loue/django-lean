@@ -1,12 +1,13 @@
-
+# -*- coding: utf-8 -*-
 from south.db import db
+
 from django.db import models
+
 from experiments.models import *
 
 class Migration:
-
     no_dry_run = True
-
+    
     def forwards(self, orm):
         pass
     

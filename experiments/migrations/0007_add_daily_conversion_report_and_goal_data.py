@@ -1,12 +1,12 @@
-
+# -*- coding: utf-8 -*-
 from south.db import db
+
 from django.db import models
+
 from experiments.models import *
 
 class Migration:
-    
     def forwards(self, orm):
-        
         # Adding model 'DailyConversionReport'
         db.create_table('experiments_dailyconversionreport', (
             ('id', orm['experiments.dailyconversionreport:id']),
@@ -30,18 +30,13 @@ class Migration:
             ('confidence', orm['experiments.dailyconversionreportgoaldata:confidence']),
         ))
         db.send_create_signal('experiments', ['DailyConversionReportGoalData'])
-        
     
-    
-    def backwards(self, orm):
-        
+    def backwards(self, orm):    
         # Deleting model 'DailyConversionReport'
         db.delete_table('experiments_dailyconversionreport')
         
         # Deleting model 'DailyConversionReportGoalData'
         db.delete_table('experiments_dailyconversionreportgoaldata')
-        
-    
     
     models = {
         'auth.group': {

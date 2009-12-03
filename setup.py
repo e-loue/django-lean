@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """A/B Testing for Django
 
 django-lean allows you to perform split-test experiments on your users.

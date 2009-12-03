@@ -1,12 +1,12 @@
-
+# -*- coding: utf-8 -*-
 from south.db import db
+
 from django.db import models
+
 from experiments.models import *
 
 class Migration:
-    
     def forwards(self, orm):
-        
         # Adding field 'DailyReport.test_group_size'
         db.add_column('experiments_dailyreport', 'test_group_size', orm['experiments.dailyreport:test_group_size'])
         
@@ -17,10 +17,7 @@ class Migration:
         # (to signature: django.db.models.fields.related.ForeignKey(to=orm['experiments.AnonymousVisitor'], null=True, blank=True))
         db.alter_column('experiments_participant', 'anonymous_visitor_id', orm['experiments.participant:anonymous_visitor'])
         
-    
-    
-    def backwards(self, orm):
-        
+    def backwards(self, orm):    
         # Deleting field 'DailyReport.test_group_size'
         db.delete_column('experiments_dailyreport', 'test_group_size')
         
@@ -30,8 +27,6 @@ class Migration:
         # Changing field 'Participant.anonymous_visitor'
         # (to signature: django.db.models.fields.related.ForeignKey(to=orm['experiments.AnonymousVisitor'], null=True))
         db.alter_column('experiments_participant', 'anonymous_visitor_id', orm['experiments.participant:anonymous_visitor'])
-        
-    
     
     models = {
         'auth.group': {

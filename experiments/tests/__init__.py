@@ -1,6 +1,5 @@
-import os
-import types
-import unittest
+# -*- coding: utf-8 -*-
+import os, types, unittest
 
 # Import all Python test cases in this tests directory
 for filename in os.listdir(os.path.dirname(__file__)):
@@ -13,5 +12,3 @@ for filename in os.listdir(os.path.dirname(__file__)):
             if (type(function) is types.TypeType and
                 issubclass(function, unittest.TestCase)):
                 globals()[name] = function
-
-from experiments.tests.utils import TestCase

@@ -1,14 +1,11 @@
-import logging
+# -*- coding: utf-8 -*-
+import logging, os, sys
 l = logging.getLogger(__name__)
-
-import os
-import sys
 
 from django.conf import settings
 from django.utils import simplejson
 
 from experiments.models import Experiment
-
 
 class ExperimentLoader(object):
     """
@@ -27,11 +24,10 @@ class ExperimentLoader(object):
         for app_name in apps:
             application_path = os.path.dirname(sys.modules[app_name].__file__)
             application_experiment_file_path = (application_path +
-                        ExperimentLoader.APPLICATION_RELATIVE_EXPERIMENT_FILE)
+                ExperimentLoader.APPLICATION_RELATIVE_EXPERIMENT_FILE)
             if os.access(application_experiment_file_path, os.F_OK):
-                ExperimentLoader.load_experiments(
-                                    application_experiment_file_path)
-
+                ExperimentLoader.load_experiments(application_experiment_file_path)
+    
     @staticmethod
     def load_experiments(filename):
         """
@@ -47,7 +43,7 @@ class ExperimentLoader(object):
             raise e
         finally:
             fp.close()
-
+        
         for entry in experiment_names:
             for key in entry.keys():
                 if key not in ExperimentLoader.ALLOWED_ATTRIBUTES:
@@ -56,8 +52,8 @@ class ExperimentLoader(object):
                               (key, entry, filename))
             if ExperimentLoader.NAME_ATTRIBUTE in entry:
                 Experiment.objects.get_or_create(
-                          name=entry.get(ExperimentLoader.NAME_ATTRIBUTE))
+                    name=entry.get(ExperimentLoader.NAME_ATTRIBUTE))
             else:
                 l.warning("Invalid entry in experiment file %s : %s" %
-                                                        (filename, entry))
-
+                    (filename, entry))
+    

@@ -1,15 +1,12 @@
-import logging
+# -*- coding: utf-8 -*-
+import logging, random, traceback
 l = logging.getLogger(__name__)
 
 from datetime import date
-import random
-import traceback
 
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
-from django.db.models import Q
-
 
 class AnonymousVisitor(models.Model):
     """An anonymous visitor"""
@@ -57,9 +54,7 @@ class GoalRecord(models.Model):
 
 class Experiment(models.Model):
     """ Defines a split testing experiment"""
-
     class __UnverifiedUser(object):
-
         def __init__(self, experiment_user):
             self.experiment_user = experiment_user
 
@@ -72,7 +67,6 @@ class Experiment(models.Model):
                                                             group_id)
 
     class __RegisteredUser(object):
-
         def __init__(self, experiment_user):
             self.experiment_user = experiment_user
 
@@ -91,7 +85,6 @@ class Experiment(models.Model):
                 experiment=experiment, group=group_id)
 
     class __AnonymousUser(object):
-
         def __init__(self, experiment_user):
             self.experiment_user = experiment_user
 
@@ -272,7 +265,6 @@ class Participant(models.Model):
 
 class DailyEngagementReport(models.Model):
     """Hold the scores for a given experiment on a given day"""
-
     date = models.DateField(db_index=True)
     experiment = models.ForeignKey(Experiment)
     test_score = models.FloatField(null=True)
@@ -284,7 +276,6 @@ class DailyEngagementReport(models.Model):
 
 class DailyConversionReport(models.Model):
     """Stores the daily conversion scores."""
-
     date = models.DateField(db_index=True)
     experiment = models.ForeignKey(Experiment)
     overall_test_conversion = models.IntegerField()
@@ -296,7 +287,6 @@ class DailyConversionReport(models.Model):
 
 class  DailyConversionReportGoalData(models.Model):
     """Stores the daily conversion report goal data."""
-
     report = models.ForeignKey(DailyConversionReport)
     goal_type = models.ForeignKey(GoalType)
     test_conversion = models.IntegerField()

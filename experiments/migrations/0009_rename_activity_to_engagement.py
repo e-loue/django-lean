@@ -1,20 +1,18 @@
-
+# -*- coding: utf-8 -*-
 from south.db import db
+
 from django.db import models
+
 from experiments.models import *
 
-class Migration:
-    
+class Migration:    
     def forwards(self, orm):
         db.rename_table('experiments_dailyactivityreport',
                         'experiments_dailyengagementreport')
     
-    
     def backwards(self, orm):
         db.rename_table('experiments_dailyengagementreport',
                         'experiments_dailyactivityreport')
-        
-    
     
     models = {
         'auth.group': {

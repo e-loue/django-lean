@@ -1,12 +1,12 @@
-
+# -*- coding: utf-8 -*-
 from south.db import db
+
 from django.db import models
+
 from experiments.models import *
 
 class Migration:
-    
     def forwards(self, orm):
-        
         # Adding model 'Experiment'
         db.create_table('experiments_experiment', (
             ('id', orm['experiments.Experiment:id']),
@@ -39,11 +39,8 @@ class Migration:
         
         # Creating unique_together for [user, experiment] on Participant.
         db.create_unique('experiments_participant', ['user_id', 'experiment_id'])
-        
     
-    
-    def backwards(self, orm):
-        
+    def backwards(self, orm):    
         # Deleting model 'Experiment'
         db.delete_table('experiments_experiment')
         
@@ -55,9 +52,8 @@ class Migration:
         
         # Deleting unique_together for [user, experiment] on Participant.
         db.delete_unique('experiments_participant', ['user_id', 'experiment_id'])
-        
     
-    
+
     models = {
         'auth.group': {
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),

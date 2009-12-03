@@ -1,10 +1,11 @@
-
+# -*- coding: utf-8 -*-
 from south.db import db
+
 from django.db import models
+
 from experiments.models import *
 
-class Migration:
-    
+class Migration:    
     def forwards(self, orm):
         db.create_index('experiments_experiment', ['start_date'])
         db.create_index('experiments_dailyconversionreport', ['date'])
@@ -12,8 +13,6 @@ class Migration:
         db.create_index('experiments_anonymousvisitor', ['created'])
         db.create_index('experiments_goalrecord', ['created'])
         db.create_index('experiments_participant', ['enrollment_date'])
-        
-    
     
     def backwards(self, orm):
         db.delete_index('experiments_experiment', ['start_date'])

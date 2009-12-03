@@ -1,17 +1,14 @@
+# -*- coding: utf-8 -*-
 import logging
 l = logging.getLogger(__name__)
 
-import os
-
 from experiments.models import AnonymousVisitor, Experiment, Participant
-
 
 class WebUser(object):
     """
     Wrapper class that implements an 'ExperimentUser' object from a web
     request.
     """
-
     def __init__(self, request):
         self.user = request.user
         self.session = request.session
@@ -93,9 +90,9 @@ class WebUserFactory(object):
     """
     Factory that creates 'ExperimentUser' objects from a web context.
     """
-
     def create_user(self, context):
         request = context.get('request', None)
         if request is None:
             return StaticUser()
         return WebUser(request)
+    

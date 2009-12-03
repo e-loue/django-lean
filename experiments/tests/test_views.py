@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from BeautifulSoup import BeautifulSoup
 from datetime import date, timedelta
 
@@ -10,8 +11,6 @@ from experiments.models import (Experiment, Participant,
                                 DailyEngagementReport, AnonymousVisitor,
                                 GoalType, DailyConversionReport,
                                 DailyConversionReportGoalData)
-from experiments.tests.utils import create_user_in_group
-
 
 def get_tables(html):
     results = []
@@ -32,29 +31,28 @@ def days_ago(days):
     return date.today() - timedelta(days=days)
 
 class TestExperimentViews(object):
-
     urls = 'experiments.tests.urls'
-
+    
     def setUp(self):
         staff_user = User(username="staff_user", email="staff@example.com",
                           is_staff=True)
         staff_user.save()
         staff_user.set_password("staff")
         staff_user.save()
-
+        
         # self.assertTrue(self.client.login(username='staff_user',
         #                                   password='staff'))
-
+        
         self.experiment1 = Experiment(name="experiment 1")
         self.experiment1.save()
         self.experiment1.state = Experiment.ENABLED_STATE
         self.experiment1.save()
         self.experiment1.start_date -= timedelta(days=5)
         self.experiment1.save()
-
+        
         goal_types = [GoalType.objects.create(name='test_goal_%s' % i)
                       for i in range(3)]
-
+        
         for i in range(1, 6):
             DailyEngagementReport.objects.create(date=days_ago(i),
                                                  experiment=self.experiment1,
@@ -78,17 +76,17 @@ class TestExperimentViews(object):
                     test_conversion=11,
                     control_conversion=7,
                     confidence=45.3)
-            
+        
         self.experiment2 = Experiment(name="experiment 2")
         self.experiment2.save()
-
+        
         self.experiment3 = Experiment(name="experiment 3")
         self.experiment3.save()
         self.experiment3.state = Experiment.ENABLED_STATE
         self.experiment3.save()
         self.experiment3.state = Experiment.PROMOTED_STATE
         self.experiment3.save()
-
+    
     def testListExperimentsView(self):
         url = reverse('experiments.views.list_experiments')
         response = self.client.get(url)
@@ -104,7 +102,7 @@ class TestExperimentViews(object):
                             unicode(self.experiment3.start_date),
                             unicode(self.experiment3.end_date)]],
                           data)
-
+    
     def testAnonymousUserCannotAccessReports(self):
         self.client.logout()
         url = reverse('experiments.views.experiment_details',
@@ -116,18 +114,18 @@ class TestExperimentViews(object):
         response = self.client.get(url)
         self.assertEquals(response.status_code, 200)
         self.assertTrue('<title>Log in' in response.content)
-
+    
     def testRegularUserCannotAccessReports(self):
         self.client.logout()
-
+        
         regular_user = User(username="regular_user", email="joe@example.com")
         regular_user.save()
         regular_user.set_password("joe")
         regular_user.save()
-
+        
         self.assertTrue(self.client.login(username='regular_user',
                                           password='joe'))
-
+        
         url = reverse('experiments.views.experiment_details',
                       args=['experiment 1'])
         response = self.client.get(url)
@@ -137,13 +135,13 @@ class TestExperimentViews(object):
         response = self.client.get(url)
         self.assertEquals(response.status_code, 200)
         self.assertTrue('<title>Log in' in response.content)
-
+    
     def test404IfExperimentDoesntExist(self):
         url = reverse('experiments.views.experiment_details',
                       args=['inexistant experiment'])
         response = self.client.get(url)
         self.assertEquals(response.status_code, 404)
-
+    
     def testExperimentDetailsView(self):
         url = reverse('experiments.views.experiment_details',
                       args=['experiment 1'])
@@ -195,32 +193,32 @@ class TestExperimentViews(object):
                            u'-28 %', u'93 %'],
                           engagement_details[1][0])
         self.assertEquals([], tables)
-
+    
     def testVerifyHuman(self):
         experiment = Experiment(name="experiment")
         experiment.save()
         experiment.state = Experiment.ENABLED_STATE
         experiment.save()
-
+        
         other_experiment = Experiment(name="other_experiment")
         other_experiment.save()
         other_experiment.state = Experiment.ENABLED_STATE
         other_experiment.save()
-
+        
         self.client = Client()
-
+        
         original_participants_count = Participant.objects.all().count()
         original_anonymous_visitors_count = AnonymousVisitor.objects.all().count()
         experiment_url = reverse('experiments.tests.views.experiment_test',
                                  args=[experiment.name])
         response = self.client.get(experiment_url)
         self.assertEquals(response.status_code, 200)
-
+        
         self.assertEquals(original_participants_count,
                           Participant.objects.all().count())
         self.assertEquals(original_anonymous_visitors_count,
                           AnonymousVisitor.objects.all().count())
-
+        
         confirm_human_url = reverse('experiments.views.confirm_human')
         response = self.client.get(confirm_human_url)
         self.assertEquals(response.status_code, 204)
@@ -229,7 +227,7 @@ class TestExperimentViews(object):
                           Participant.objects.all().count())
         self.assertEquals(original_anonymous_visitors_count+1,
                           AnonymousVisitor.objects.all().count())
-
+        
         # calling it again does nothing
         response = self.client.get(confirm_human_url)
         self.assertEquals(response.status_code, 204)
@@ -238,20 +236,20 @@ class TestExperimentViews(object):
                           Participant.objects.all().count())
         self.assertEquals(original_anonymous_visitors_count+1,
                           AnonymousVisitor.objects.all().count())
-
+        
         other_experiment_url = reverse(
             'experiments.tests.views.experiment_test',
             args=[other_experiment.name])
         response = self.client.get(other_experiment_url)
         self.assertEquals(response.status_code, 200)
-
+        
         # a new participant is immediately created for the new experiment
         self.assertEquals(original_participants_count + 2,
                           Participant.objects.all().count())
         # the existing anonymous visitor is reused
         self.assertEquals(original_anonymous_visitors_count + 1,
                           AnonymousVisitor.objects.all().count())
-
+        
         # the new experiment does not cause storage of a temporary enrollment
         response = self.client.get(confirm_human_url)
         self.assertEquals(response.status_code, 204)
@@ -260,7 +258,7 @@ class TestExperimentViews(object):
                           Participant.objects.all().count())
         self.assertEquals(original_anonymous_visitors_count+1,
                           AnonymousVisitor.objects.all().count())
-
+    
     def testGroupSanity(self):
         experiment = Experiment(name="experiment")
         experiment.save()
