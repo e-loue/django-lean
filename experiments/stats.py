@@ -46,6 +46,8 @@ def var(inlist):
     Usage:   lvar(inlist)
     """
     n = len(inlist)
+    if n <= 1:
+        return 0.0
     mn = mean(inlist)
     deviations = [0]*len(inlist)
     for i in range(len(inlist)):
@@ -148,25 +150,25 @@ def betai(a,b,x):
 def ttest_ind(a, b):
     """
     Calculates the t-obtained T-test on TWO INDEPENDENT samples of
-    scores a, and b.  From Numerical Recipies, p.483.  If printit=1, results
-    are printed to the screen.  If printit='filename', the results are output
-    to 'filename' using the given writemode (default=append).  Returns t-value,
-    and prob.
+    scores a, and b. Returns t-value, and prob.
     
     Originally written by Gary Strangman.
-
-    Usage:   lttest_ind(a,b,printit=0,name1='Samp1',name2='Samp2',writemode='a')
+    
+    Usage:   lttest_ind(a,b)
     Returns: t-value, two-tailed prob
     """
-    x1 = mean(a)
-    x2 = mean(b)
-    v1 = stdev(a)**2
-    v2 = stdev(b)**2
-    n1 = len(a)
-    n2 = len(b)
+    x1, x2 = mean(a), mean(b)
+    v1, v2 = stdev(a)**2, stdev(b)**2
+    n1, n2 = len(a), len(b)
     df = n1+n2-2
-    svar = ((n1-1)*v1+(n2-1)*v2)/float(df)
-    t = (x1-x2)/sqrt(svar*(1.0/n1 + 1.0/n2))
+    try:
+        svar = ((n1-1)*v1+(n2-1)*v2)/float(df)
+    except ZeroDivisionError:
+        return float('nan'), float('nan')
+    try:
+        t = (x1-x2)/sqrt(svar*(1.0/n1 + 1.0/n2))
+    except ZeroDivisionError:
+        t = 1.0
     prob = betai(0.5*df,0.5,df/(df+t*t))
     return t, prob
 
