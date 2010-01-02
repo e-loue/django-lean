@@ -253,7 +253,11 @@ class Participant(models.Model):
     anonymous_visitor = models.ForeignKey(AnonymousVisitor, null=True, blank=True)
 
     def __unicode__(self):
-        return "%s %s" % (self.user.username, self.group)
+        if self.user: # can be null
+            username = self.user.username
+        else:
+            username = 'anonymous#%d' % self.anonymous_visitor.id
+        return "%s %s" % (username, self.group)
 
     def __init__(self, *args, **kwargs):
         super(Participant, self).__init__(*args, **kwargs)
