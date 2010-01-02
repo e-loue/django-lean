@@ -1,6 +1,7 @@
 syntax: glob
 *.pyc
 *.bak
+*.tmproj
 *~
 MANIFEST
 dist/*
