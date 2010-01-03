@@ -110,7 +110,7 @@ def get_conversion_data(experiment, date):
     
     goal_types_data = {}
     for goal_type in all_goal_types:
-        goal_type_data_set = report.dailyconversionreportgoaldata_set.filter(goal_type=goal_type)
+        goal_type_data_set = report.goal_data.filter(goal_type=goal_type)
         if goal_type_data_set.count() != 1:
             goal_data = None
         else:
