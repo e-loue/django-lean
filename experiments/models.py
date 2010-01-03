@@ -291,7 +291,7 @@ class DailyConversionReport(models.Model):
 
 class  DailyConversionReportGoalData(models.Model):
     """Stores the daily conversion report goal data."""
-    report = models.ForeignKey(DailyConversionReport)
+    report = models.ForeignKey(DailyConversionReport, related_name="goal_data")
     goal_type = models.ForeignKey(GoalType)
     test_conversion = models.IntegerField()
     control_conversion = models.IntegerField()
