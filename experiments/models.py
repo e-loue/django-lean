@@ -78,8 +78,6 @@ class Experiment(models.Model):
                 experiment=experiment)
             if participants.count() == 1:
                 return participants[0].group
-            else:
-                return None
 
         def set_enrollment(self, experiment, group_id):
             Participant.objects.create(
@@ -92,13 +90,10 @@ class Experiment(models.Model):
 
         def __get_anonymous_visitor(self):
             anonymous_id = self.experiment_user.get_anonymous_id()
-            if anonymous_id == None:
-                return None
-            anonymous_visitors = AnonymousVisitor.objects.filter(
-                id=anonymous_id)
-            if anonymous_visitors.count() != 1:
-                return None
-            return anonymous_visitors[0]
+            if anonymous_id:
+                anonymous_visitors = AnonymousVisitor.objects.filter(id=anonymous_id)
+                if anonymous_visitors.count() == 1:
+                    return anonymous_visitors[0]
 
         def get_enrollment(self, experiment):
             anonymous_visitor = self.__get_anonymous_visitor()
@@ -109,7 +104,6 @@ class Experiment(models.Model):
                     experiment=experiment)
                 if participants.count() == 1:
                     return participants[0].group
-            return None
 
         def set_enrollment(self, experiment, group_id):
             anonymous_visitor = self.__get_anonymous_visitor()
