@@ -46,7 +46,9 @@ class GoalRecord(models.Model):
         try:
             return cls._record(goal_name, experiment_user)
         except GoalType.DoesNotExist:
-            raise
+            if settings.DEBUG:
+                raise
+            l.warning("Can't find the GoalType named %s" % goal_name)
         except Exception, e:
             l.error("Unexpected exception in GoalRecord.record:\n"
                     "%s" % traceback.format_exc)
