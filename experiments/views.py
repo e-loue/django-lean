@@ -4,7 +4,6 @@ l = logging.getLogger(__name__)
 
 from datetime import date, timedelta
 
-from django.contrib.admin.views.decorators import staff_member_required
 from django.http import HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
@@ -46,7 +45,6 @@ def record_experiment_goal(request, goal_name):
     
     return HttpResponse(TRANSPARENT_1X1_PNG, mimetype="image/png")
 
-@staff_member_required
 def list_experiments(request, template_name='experiments/list_experiments.html'):
     """docstring for list_experiments"""
     context_var = {"experiments": Experiment.objects.order_by("-start_date"),
@@ -57,7 +55,6 @@ def list_experiments(request, template_name='experiments/list_experiments.html')
     return render_to_response(template_name, context_var,
                               context_instance=RequestContext(request))
 
-@staff_member_required
 def experiment_details(request, experiment_name,
                        template_name="experiments/experiment_details.html"):
     """
