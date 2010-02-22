@@ -3,7 +3,13 @@ syntax: glob
 *.bak
 *.tmproj
 *~
+parts/*
 MANIFEST
+downloads/*
+develop-eggs/*
+.installed.cfg
+bin/*
+eggs/*
 dist/*
 env/*
 *.egg-info
