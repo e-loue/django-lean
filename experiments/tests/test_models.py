@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
+from __future__ import with_statement
 from datetime import datetime
 
+from django.conf import settings
 from django.test import TestCase
 from django.contrib.auth.models import User
 from experiments.models import (Experiment, Participant, AnonymousVisitor,
                                       GoalType, GoalRecord)
-from experiments.tests.utils import TestUser
+from experiments.tests.utils import TestUser, patch
 
 
 class TestExperimentModels(TestCase):
@@ -185,7 +187,38 @@ class TestExperimentModels(TestCase):
         self.assert_(num_control2 > 400)
         self.assert_(num_test1 > 400)
         self.assert_(num_test2 > 400)
-    
+
+    def testMissingGoalType(self):
+        anonymous_visitor = AnonymousVisitor()
+        anonymous_visitor.save()
+
+        goal_type = GoalType(name="existing-goal")
+        goal_type.save()
+        
+        nb_types = GoalType.objects.all().count()
+        nb_records = GoalRecord.objects.all().count()
+
+        GoalRecord.record('existing-goal', TestUser(anonymous_visitor=anonymous_visitor))
+        self.assertEquals(nb_records + 1, GoalRecord.objects.all().count())
+        self.assertEqual(nb_types, GoalType.objects.all().count())
+
+        with patch(settings, 'LEAN_AUTOCREATE_GOAL_TYPES', False):
+            GoalRecord.record('inexistant-goal', TestUser(anonymous_visitor=anonymous_visitor))
+            self.assertEquals(nb_records + 1, GoalRecord.objects.all().count())
+            self.assertEqual(nb_types, GoalType.objects.all().count())
+
+        with patch(settings, 'LEAN_AUTOCREATE_GOAL_TYPES', NotImplemented):
+            GoalRecord.record('inexistant-goal', TestUser(anonymous_visitor=anonymous_visitor))
+            self.assertEquals(nb_records + 1, GoalRecord.objects.all().count())
+            self.assertEqual(nb_types, GoalType.objects.all().count())
+            
+        with patch(settings, 'LEAN_AUTOCREATE_GOAL_TYPES', True):
+            GoalRecord.record('inexistant-goal',
+                              TestUser(anonymous_visitor=anonymous_visitor))
+            self.assertEquals(nb_records + 2, GoalRecord.objects.all().count())
+            self.assertEqual(nb_types + 1, GoalType.objects.all().count())
+        
+
     def testGoals(self):
         anonymous_visitor = AnonymousVisitor()
         anonymous_visitor.save()

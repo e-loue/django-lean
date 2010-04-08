@@ -38,11 +38,10 @@ class GoalRecord(models.Model):
         anonymous_id = experiment_user.get_anonymous_id()
         if anonymous_id:
             anonymous_visitor = AnonymousVisitor.objects.get(id=anonymous_id)
-            try:
+            if getattr(settings, 'LEAN_AUTOCREATE_GOAL_TYPES', False):
+                (goal_type, created) = GoalType.objects.get_or_create(name=goal_name)
+            else:
                 goal_type = GoalType.objects.get(name=goal_name)
-            except ObjectDoesNotExist:
-                goal_type = GoalType(name=goal_name)
-                goal_type.save()
 
             GoalRecord(goal_type=goal_type,
                        anonymous_visitor=anonymous_visitor).save()
