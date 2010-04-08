@@ -4,7 +4,6 @@ class SimpleEngagementCalculator(object):
 	return 0
 
 ROOT_URLCONF=None
-LEAN_ENGAGEMENT_CALCULATOR= 'experiments.testsettings.SimpleEngagementCalculator'
 DATABASE_ENGINE='sqlite3'
 DATABASE_NAME=':memory:'
 DATABASE_SUPPORTS_TRANSACTIONS=False

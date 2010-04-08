@@ -2,8 +2,11 @@
 import logging
 l = logging.getLogger(__name__)
 
+from contextlib import contextmanager
+
 from django.contrib.auth.models import User
 from django.test import TestCase as DjangoTestCase
+from django.utils.functional import LazyObject
 
 from experiments.loader import ExperimentLoader
 from experiments.models import Participant
@@ -76,3 +79,27 @@ class TestUser(object):
         else:
             return added_enrollments.get(experiment_name)
     
+@contextmanager
+def patch(namespace, name, value):
+    """Patches `namespace`.`name` with `value`."""
+    if isinstance(namespace, LazyObject):
+        namespace._setup()
+        namespace = namespace._wrapped
+
+    try:
+        original = getattr(namespace, name)
+    except AttributeError:
+        original = NotImplemented
+    try:
+        if value is NotImplemented:
+            if original is not NotImplemented:
+                delattr(namespace, name)
+        else:
+            setattr(namespace, name, value)
+        yield
+    finally:
+        if original is NotImplemented:
+            if value is not NotImplemented:
+                delattr(namespace, name)
+        else:
+            setattr(namespace, name, original) 
