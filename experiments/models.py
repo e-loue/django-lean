@@ -7,6 +7,7 @@ from datetime import date
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
+from django.core.exceptions import ObjectDoesNotExist
 
 class AnonymousVisitor(models.Model):
     """An anonymous visitor"""
@@ -37,7 +38,12 @@ class GoalRecord(models.Model):
         anonymous_id = experiment_user.get_anonymous_id()
         if anonymous_id:
             anonymous_visitor = AnonymousVisitor.objects.get(id=anonymous_id)
-            goal_type = GoalType.objects.get(name=goal_name)
+            try:
+                goal_type = GoalType.objects.get(name=goal_name)
+            except ObjectDoesNotExist:
+                goal_type = GoalType(name=goal_name)
+                goal_type.save()
+
             GoalRecord(goal_type=goal_type,
                        anonymous_visitor=anonymous_visitor).save()
 
