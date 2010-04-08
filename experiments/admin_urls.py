@@ -5,7 +5,5 @@ from experiments.views import experiment_details, list_experiments
 
 urlpatterns = patterns('experiments.views',
     url(r'^(?P<experiment_name>.+)/$', staff_member_required(experiment_details)),
-    url(r'^(.+)/$', 'experiment_details'),
-    url(r'^$', staff_member_required(list_experiments)),
-    url(r'^$', 'list_experiments'),
+    url(r'^$', staff_member_required(list_experiments))
 )
