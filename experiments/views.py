@@ -103,7 +103,11 @@ def experiment_details(request, experiment_name,
     start_date = experiment.start_date
     if experiment.start_date:
         if experiment.end_date:
-            end_date = experiment.end_date
+            if experiment.end_date > date.today():
+                # This experiment hasn't finished yet, so don't show details for days in the future
+                end_date = date.today()
+            else:
+                end_date = experiment.end_date
         else:
             end_date = date.today() - timedelta(days=1)
         current_date = end_date
