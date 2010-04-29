@@ -83,7 +83,8 @@ class TestUser(object):
 def patch(namespace, name, value):
     """Patches `namespace`.`name` with `value`."""
     if isinstance(namespace, LazyObject):
-        namespace._setup()
+        if namespace._wrapped is None:
+            namespace._setup()
         namespace = namespace._wrapped
 
     try:
