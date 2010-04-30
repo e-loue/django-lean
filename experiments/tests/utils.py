@@ -4,12 +4,21 @@ l = logging.getLogger(__name__)
 
 from contextlib import contextmanager
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase as DjangoTestCase
+from django.utils.importlib import import_module
 from django.utils.functional import LazyObject
 
 from experiments.loader import ExperimentLoader
 from experiments.models import Participant
+
+
+def get_session(session_key):
+    engine = import_module(settings.SESSION_ENGINE)
+    session = engine.SessionStore(session_key)
+    session.load()
+    return session
 
 def create_user_in_group(experiment, i, group, enrollment_date):
     user = User(username="user%s_%s" % (i, group),
@@ -49,6 +58,7 @@ class TestUser(object):
             self.user = None
         
         self.verified_human = verified_human
+        self.session = {}
         self.temporary_enrollments = {}
     
     def is_anonymous(self):
