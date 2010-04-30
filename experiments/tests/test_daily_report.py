@@ -176,7 +176,7 @@ class TestDailyReports(TestCase):
         return participant
     
     def testParticipantConversionCalculator(self):
-        goal_types = [GoalType.objects.create(name=i) for i in range(3)]
+        goal_types = [GoalType.objects.create(name=str(i)) for i in range(3)]
         anonymous_visitor = AnonymousVisitor.objects.create()
         participant = self.create_participant(
             anonymous_visitor=anonymous_visitor,
