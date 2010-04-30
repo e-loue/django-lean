@@ -38,6 +38,7 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules'
     ],
     packages=['experiments',
+        'experiments.analytics',
         'experiments.management',
         'experiments.management.commands',
         'experiments.templatetags',
