@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
-import logging, random, traceback
+import logging
 l = logging.getLogger(__name__)
 
 from datetime import date
+import random
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -55,8 +56,7 @@ class GoalRecord(models.Model):
                 raise
             l.warning("Can't find the GoalType named %s" % goal_name)
         except Exception, e:
-            l.error("Unexpected exception in GoalRecord.record:\n"
-                    "%s" % traceback.format_exc)
+            l.exception("Unexpected exception in GoalRecord.record")
 
 
 class Experiment(models.Model):
