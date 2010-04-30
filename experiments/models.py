@@ -10,6 +10,10 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.core.exceptions import ObjectDoesNotExist
 
+from experiments.analytics import get_all_analytics
+from experiments.signals import goal_recorded, user_enrolled
+
+
 class AnonymousVisitor(models.Model):
     """An anonymous visitor"""
     created = models.DateTimeField(auto_now_add=True, db_index=True)
@@ -44,8 +48,12 @@ class GoalRecord(models.Model):
             else:
                 goal_type = GoalType.objects.get(name=goal_name)
 
-            GoalRecord(goal_type=goal_type,
-                       anonymous_visitor=anonymous_visitor).save()
+            goal_record = GoalRecord.objects.create(
+                goal_type=goal_type, anonymous_visitor=anonymous_visitor
+            )
+            goal_recorded.send(sender=cls, goal_record=goal_record,
+                               experiment_user=experiment_user)
+            return goal_record
 
     @classmethod
     def record(cls, goal_name, experiment_user):
@@ -72,6 +80,10 @@ class Experiment(models.Model):
         def set_enrollment(self, experiment, group_id):
             self.experiment_user.store_temporary_enrollment(experiment.name,
                                                             group_id)
+            user_enrolled.send(sender=self.__class__,
+                               experiment=experiment,
+                               experiment_user=self.experiment_user,
+                               group_id=group_id)
 
     class __RegisteredUser(object):
         def __init__(self, experiment_user):
@@ -85,9 +97,14 @@ class Experiment(models.Model):
                 return participants[0].group
 
         def set_enrollment(self, experiment, group_id):
-            Participant.objects.create(
+            participant = Participant.objects.create(
                 user=self.experiment_user.get_registered_user(),
-                experiment=experiment, group=group_id)
+                experiment=experiment, group=group_id
+            )
+            user_enrolled.send(sender=self.__class__,
+                               experiment=experiment,
+                               experiment_user=self.experiment_user,
+                               group_id=group_id)
 
     class __AnonymousUser(object):
         def __init__(self, experiment_user):
@@ -119,7 +136,12 @@ class Experiment(models.Model):
 
             Participant.objects.create(
                 anonymous_visitor=anonymous_visitor,
-                experiment=experiment, group=group_id)
+                experiment=experiment, group=group_id
+            )
+            user_enrolled.send(sender=self.__class__,
+                               experiment=experiment,
+                               experiment_user=self.experiment_user,
+                               group_id=group_id)
 
     @classmethod
     def __create_user(cls, experiment_user):
@@ -297,3 +319,20 @@ class  DailyConversionReportGoalData(models.Model):
     test_conversion = models.IntegerField()
     control_conversion = models.IntegerField()
     confidence = models.FloatField(null=True)
+
+
+def analytics_goalrecord(sender, goal_record, experiment_user, *args, **kwargs):
+    for analytics in get_all_analytics():
+        analytics.record(goal_record=goal_record,
+                         experiment_user=experiment_user)
+
+goal_recorded.connect(analytics_goalrecord, sender=GoalRecord)
+
+def analytics_enrolled(sender, experiment, experiment_user, group_id,
+                       *args, **kwargs):
+    for analytics in get_all_analytics():
+        analytics.enroll(experiment=experiment,
+                         experiment_user=experiment_user,
+                         group_id=group_id)
+
+user_enrolled.connect(analytics_enrolled)
