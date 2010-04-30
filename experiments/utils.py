@@ -30,6 +30,20 @@ class WebUser(object):
     def is_verified_human(self):
         return self.session.get('verified_human', False)
 
+    def get_or_create_anonymous_visitor(self):
+        anonymous_visitor = None
+        anonymous_id = self.get_anonymous_id()
+        if anonymous_id is not None:
+            anonymous_visitors = AnonymousVisitor.objects.filter(
+                id=anonymous_id
+            )
+            if len(anonymous_visitors) == 1:
+                anonymous_visitor = anonymous_visitors[0]
+        if not anonymous_visitor:
+            anonymous_visitor = AnonymousVisitor.objects.create()
+            self.set_anonymous_id(anonymous_visitor.id)
+        return anonymous_visitor
+
     def confirm_human(self):
         self.session['verified_human'] = True
         enrollments = self.session.get('temporary_enrollments', {})
@@ -37,18 +51,7 @@ class WebUser(object):
             # nothing to do - no need to create an AnonymousVisitor.
             return
 
-        anonymous_id = self.get_anonymous_id()
-        anonymous_visitor = None
-        if anonymous_id:
-            anonymous_visitors = AnonymousVisitor.objects.filter(
-                id=anonymous_id)
-            if anonymous_visitors.count() == 1:
-                anonymous_visitor = anonymous_visitors[0]
-
-        if not anonymous_visitor:
-            anonymous_visitor = AnonymousVisitor.objects.create()
-            self.set_anonymous_id(anonymous_visitor.id)
-
+        anonymous_visitor = self.get_or_create_anonymous_visitor()
         for experiment_name, group_id in enrollments.items():
             try:
                 experiment = Experiment.objects.get(name=experiment_name)
