@@ -5,14 +5,13 @@ from contextlib import contextmanager
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser, User
 from django.http import HttpRequest
-from django.test import TestCase
 
 from experiments.analytics import (get_all_analytics, get_all_analytics_names,
                                    reset_caches, IdentificationError)
 from experiments.analytics.base import BaseAnalytics
 from experiments.models import (AnonymousVisitor, Experiment,
                                 GoalRecord, GoalType, Participant)
-from experiments.tests.utils import get_session, patch
+from experiments.tests.utils import get_session, patch, TestCase
 from experiments.utils import StaticUser, WebUser
 
 import mox

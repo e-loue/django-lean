@@ -2,9 +2,9 @@
 import logging
 l = logging.getLogger(__name__)
 
-from django.test import TestCase
-
 from experiments.significance import chi_square_p_value
+from experiments.tests.utils import TestCase
+
 
 class TestSignificance(TestCase):
     def testContingencyTableChiSquareValue(self):

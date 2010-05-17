@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
-from django.test import TestCase
 from django.conf import settings
 
 from experiments.models import Experiment
-from experiments.tests.utils import TestUser
+from experiments.tests.utils import TestCase, TestUser
 
 class TestParticipants(TestCase):
     def testDisabledExperiment(self):

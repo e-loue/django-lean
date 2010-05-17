@@ -3,14 +3,13 @@ import mox
 
 from django.core.urlresolvers import reverse
 from django.template import Context
-from django.test import TestCase
 from django.test.client import Client
 from django.contrib.auth.models import User
 
 from experiments.models import Experiment, Participant
 from experiments.templatetags.experiments import (experiment,
                                                   clientsideexperiment)
-from experiments.tests.utils import TestUser
+from experiments.tests.utils import TestCase, TestUser
 
 
 class ExperimentTagsTest(TestCase):

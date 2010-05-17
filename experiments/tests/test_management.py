@@ -7,13 +7,11 @@ from datetime import timedelta
 
 from django.conf import settings
 from django.core.management.base import CommandError
-from django.test import TestCase
 
 from experiments.models import (Experiment, DailyEngagementReport,
                                 DailyConversionReport)
 from experiments.management.commands import update_experiment_reports
-
-from experiments.tests.utils import patch
+from experiments.tests.utils import patch, TestCase
 
 class TestManagement(TestCase):
     def setUp(self):

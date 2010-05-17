@@ -6,8 +6,6 @@ import mox
 
 from datetime import date, datetime, time, timedelta
 
-from django.test import TestCase
-
 from experiments.models import (Experiment, DailyEngagementReport,
                                 DailyConversionReport,
                                 DailyConversionReportGoalData,
@@ -19,7 +17,7 @@ from experiments.reports import (EngagementReportGenerator,
                                  get_conversion_data,
                                  calculate_goal_type_conversion,
                                  find_experiment_group_participants)
-from experiments.tests.utils import create_user_in_group
+from experiments.tests.utils import create_user_in_group, TestCase
 
 
 class TestDailyReports(TestCase):

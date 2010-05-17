@@ -3,11 +3,11 @@ from __future__ import with_statement
 from datetime import datetime
 
 from django.conf import settings
-from django.test import TestCase
 from django.contrib.auth.models import User
+
 from experiments.models import (Experiment, Participant, AnonymousVisitor,
                                       GoalType, GoalRecord)
-from experiments.tests.utils import TestUser, patch
+from experiments.tests.utils import TestCase, TestUser, patch
 
 
 class TestExperimentModels(TestCase):

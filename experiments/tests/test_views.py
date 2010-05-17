@@ -4,13 +4,13 @@ from datetime import date, timedelta
 
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-from django.test import TestCase
 from django.test.client import Client
 
 from experiments.models import (Experiment, Participant,
                                 DailyEngagementReport, AnonymousVisitor,
                                 GoalType, DailyConversionReport,
                                 DailyConversionReportGoalData)
+from experiments.tests.utils import TestCase
 
 def get_tables(html):
     results = []

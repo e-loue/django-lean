@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-from django.test import TestCase
 from django.test.client import Client
 
 from experiments.models import AnonymousVisitor, Experiment, GoalRecord, GoalType
+from experiments.tests.utils import TestCase
 from experiments.views import TRANSPARENT_1X1_PNG
 
 class BugViewTest(TestCase):

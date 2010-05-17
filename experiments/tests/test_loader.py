@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 import os
 
-from django.test import TestCase
 from experiments.loader import ExperimentLoader
 from experiments.models import Experiment
+from experiments.tests.utils import TestCase
 
 
 def get_experiments(filename):
