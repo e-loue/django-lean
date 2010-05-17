@@ -243,6 +243,10 @@ else:
             with self.web_user(AnonymousUser()) as experiment_user:
                 self.mox.ReplayAll()
                 self.assertTrue(self.analytics._identify(experiment_user))
+                self.assertEqual(
+                    self.analytics.identity,
+                    'Session %s' % experiment_user.session.session_key
+                )
                 self.mox.VerifyAll()
 
             # With authenticated WebUser
@@ -250,11 +254,14 @@ else:
             with self.web_user(user) as experiment_user:
                 self.mox.ReplayAll()
                 self.assertTrue(self.analytics._identify(experiment_user))
+                self.assertEqual(self.analytics.identity,
+                                 'User %s' % experiment_user.user.pk)
                 self.mox.VerifyAll()
 
             # With StaticUser
             experiment_user = StaticUser()
             self.assertFalse(self.analytics._identify(experiment_user))
+            self.assertEqual(self.analytics.identity, None)
 
         def test_enroll(self):
             import time

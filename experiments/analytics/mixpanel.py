@@ -18,8 +18,12 @@ class Mixpanel(BaseAnalytics):
         self.identity = None
 
     def _identify(self, experiment_user):
+        self.identity = None
         self.remote_addr = None
-        request = experiment_user.request
+        try:
+            request = experiment_user.request
+        except AttributeError:
+            request = experiment_user
         if hasattr(request, 'META'):
             self.remote_addr = request.META.get('REMOTE_ADDR', None)
         try:
