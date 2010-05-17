@@ -1,4 +1,6 @@
 from experiments.analytics import IdentificationError
+from experiments.models import Participant
+from experiments.utils import WebUser
 
 
 class BaseAnalytics(object):
@@ -20,10 +22,19 @@ class BaseAnalytics(object):
         return self._id_from_session(experiment_user.session)
 
     def enroll(self, experiment, experiment_user, group_id):
-        raise NotImplementedError()
+        self._submit(name='Enrolled In Experiment',
+                     properties={'Experiment': unicode(experiment),
+                                 'Group': dict(Participant.GROUPS)[group_id]},
+                     experiment_user=experiment_user)
 
     def record(self, goal_record, experiment_user):
-        raise NotImplementedError()
+        self._submit(name='Goal Recorded',
+                     properties={'Goal Type': unicode(goal_record.goal_type)},
+                     experiment_user=experiment_user)
 
     def event(self, name, properties, request=None):
+        if request:
+            self._submit(name, properties, experiment_user=WebUser(request))
+
+    def _submit(self, name, properties, experiment_user=None):
         raise NotImplementedError()

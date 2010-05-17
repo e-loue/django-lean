@@ -6,8 +6,6 @@ from mixpanel.tasks import EventTracker
 
 from experiments.analytics import IdentificationError
 from experiments.analytics.base import BaseAnalytics
-from experiments.models import Participant
-from experiments.utils import WebUser
 
 
 class Mixpanel(BaseAnalytics):
@@ -41,24 +39,7 @@ class Mixpanel(BaseAnalytics):
         result.update(properties)
         return result
 
-    def enroll(self, experiment, experiment_user, group_id):
+    def _submit(self, name, properties, experiment_user=None):
         if self._identify(experiment_user):
-            properties = self._properties(
-                {'Experiment': unicode(experiment),
-                 'Group': dict(Participant.GROUPS)[group_id]}
-            )
-            self.tracker.run(event_name='Enrolled In Experiment',
-                             properties=properties)
-
-    def record(self, goal_record, experiment_user):
-        if self._identify(experiment_user):
-            properties = self._properties(
-                {'Goal Type': unicode(goal_record.goal_type)}
-            )
-            self.tracker.run(event_name='Goal Recorded',
-                             properties=properties)
-
-    def event(self, name, properties, request=None):
-        if request and self._identify(WebUser(request)):
             properties = self._properties(properties)
             self.tracker.run(event_name=name, properties=properties)
