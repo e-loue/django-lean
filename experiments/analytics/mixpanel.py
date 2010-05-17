@@ -7,6 +7,7 @@ from mixpanel.tasks import EventTracker
 from experiments.analytics import IdentificationError
 from experiments.analytics.base import BaseAnalytics
 from experiments.models import Participant
+from experiments.utils import WebUser
 
 
 class Mixpanel(BaseAnalytics):
@@ -20,10 +21,7 @@ class Mixpanel(BaseAnalytics):
     def _identify(self, experiment_user):
         self.identity = None
         self.remote_addr = None
-        try:
-            request = experiment_user.request
-        except AttributeError:
-            request = experiment_user
+        request = experiment_user.request
         if hasattr(request, 'META'):
             self.remote_addr = request.META.get('REMOTE_ADDR', None)
         try:
@@ -59,3 +57,8 @@ class Mixpanel(BaseAnalytics):
             )
             self.tracker.run(event_name='Goal Recorded',
                              properties=properties)
+
+    def event(self, name, properties, request=None):
+        if request and self._identify(WebUser(request)):
+            properties = self._properties(properties)
+            self.tracker.run(event_name=name, properties=properties)

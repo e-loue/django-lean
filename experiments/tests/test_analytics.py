@@ -159,6 +159,18 @@ else:
                                  experiment_user=experiment_user)
                 self.mox.VerifyAll()
 
+        def test_event(self):
+            KM = self.mox.CreateMockAnything()
+            analytics = KissMetrics(KM=KM)
+            with self.web_user(AnonymousUser()) as experiment_user:
+                KM.identify(analytics._id_from_session(experiment_user.session))
+                KM.record(action='Event', props={'Foo': 'Bar'})
+                self.mox.ReplayAll()
+                analytics.event(name='Event',
+                                properties={'Foo': 'Bar'},
+                                request=experiment_user.request)
+                self.mox.VerifyAll()
+
         @contextmanager
         def web_user(self, user):
             session = get_session(None)
@@ -307,6 +319,28 @@ else:
                                                 experiment_user=experiment_user)
                 analytics.record(goal_record=goal_record,
                                  experiment_user=experiment_user)
+                self.mox.VerifyAll()
+
+        def test_event(self):
+            import time
+            tracker = self.mox.CreateMockAnything()
+            analytics = Mixpanel(tracker=tracker)
+            now = time.gmtime()
+            self.mox.StubOutWithMock(time, 'gmtime')
+            time.gmtime().AndReturn(now)
+            with self.web_user(AnonymousUser()) as experiment_user:
+                properties = {
+                    'time': '%d' % time.mktime(now),
+                    'distinct_id': ('Session %s' %
+                                    experiment_user.session.session_key),
+                    'Foo': 'Bar'
+                }
+                tracker.run(event_name='Event',
+                            properties=properties)
+                self.mox.ReplayAll()
+                analytics.event(name='Event',
+                                properties={'Foo': 'Bar'},
+                                request=experiment_user.request)
                 self.mox.VerifyAll()
 
         @contextmanager

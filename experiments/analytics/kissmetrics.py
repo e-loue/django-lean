@@ -3,6 +3,7 @@ from django_kissmetrics.middleware import TrackingMiddleware
 from experiments.analytics import IdentificationError
 from experiments.analytics.base import BaseAnalytics
 from experiments.models import Participant
+from experiments.utils import WebUser
 
 
 class KissMetrics(BaseAnalytics):
@@ -45,3 +46,7 @@ class KissMetrics(BaseAnalytics):
         if self._identify(experiment_user):
             self.KM.record(action='Goal Recorded',
                            props={'Goal Type': unicode(goal_record.goal_type)})
+
+    def event(self, name, properties, request=None):
+        if request and self._identify(WebUser(request)):
+            self.KM.record(action=name, props=properties)

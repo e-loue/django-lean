@@ -24,3 +24,6 @@ class BaseAnalytics(object):
 
     def record(self, goal_record, experiment_user):
         raise NotImplementedError()
+
+    def event(self, name, properties, request=None):
+        raise NotImplementedError()
