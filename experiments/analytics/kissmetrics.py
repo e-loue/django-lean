@@ -27,11 +27,6 @@ class KissMetrics(BaseAnalytics):
         except AttributeError, e:
             raise IdentificationError(e)
 
-    def _compute_id(self, experiment_user):
-        if not experiment_user.is_anonymous():
-            return self._id_from_user(experiment_user.user)
-        return self._id_from_session(experiment_user.session)
-
     def _identify(self, experiment_user):
         try:
             self.KM.identify(self._compute_id(experiment_user))
