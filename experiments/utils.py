@@ -10,6 +10,7 @@ class WebUser(object):
     request.
     """
     def __init__(self, request):
+        self.request = request
         self.user = request.user
         self.session = request.session
 
@@ -85,6 +86,7 @@ class WebUser(object):
 class StaticUser(WebUser):
     def __init__(self):
         from django.contrib.auth.models import AnonymousUser
+        self.request = None
         self.user = AnonymousUser()
         self.session = {}
 

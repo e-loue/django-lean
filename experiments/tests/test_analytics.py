@@ -3,12 +3,17 @@ from __future__ import with_statement
 from contextlib import contextmanager
 
 from django.conf import settings
+from django.contrib.auth.models import AnonymousUser, User
+from django.http import HttpRequest
 from django.test import TestCase
 
 from experiments.analytics import (get_all_analytics, get_all_analytics_names,
-                                   reset_caches)
+                                   reset_caches, IdentificationError)
 from experiments.analytics.base import BaseAnalytics
+from experiments.models import (AnonymousVisitor, Experiment,
+                                GoalRecord, GoalType, Participant)
 from experiments.tests.utils import get_session, patch
+from experiments.utils import StaticUser, WebUser
 
 import mox
 
@@ -40,22 +45,18 @@ class TestAnalytics(TestCase):
                              [BaseAnalytics.__name__])
 
 
+#############
+# KISSMETRICS
+#############
+
 try:
     import django_kissmetrics
 except ImportError:
-    from experiments.analytics import get_all_analytics_names
     if 'experiments.analytics.kissmetrics.KissMetrics' in \
        get_all_analytics_names():
         traceback.print_exc()
 else:
-    from django.contrib.auth.models import AnonymousUser, User
-    from django.http import HttpRequest
-
-    from experiments.analytics import IdentificationError
     from experiments.analytics.kissmetrics import KissMetrics
-    from experiments.models import (AnonymousVisitor, Experiment,
-                                    GoalRecord, GoalType, Participant)
-    from experiments.utils import StaticUser, WebUser
 
 
     class TestKissMetrics(TestCase):
@@ -150,6 +151,149 @@ else:
                 KM.identify(analytics._id_from_session(experiment_user.session))
                 KM.record(action='Goal Recorded',
                           props={'Goal Type': 'Goal Type'})
+                self.mox.ReplayAll()
+                goal_type = GoalType.objects.create(name='Goal Type')
+                goal_record = GoalRecord.record(goal_name=goal_type.name,
+                                                experiment_user=experiment_user)
+                analytics.record(goal_record=goal_record,
+                                 experiment_user=experiment_user)
+                self.mox.VerifyAll()
+
+        @contextmanager
+        def web_user(self, user):
+            session = get_session(None)
+            request = self.mox.CreateMock(HttpRequest)
+            request.user = user
+            request.session = session
+            experiment_user = WebUser(request)
+            experiment_user.get_or_create_anonymous_visitor()
+            yield experiment_user
+
+
+##########
+# MIXPANEL
+##########
+
+try:
+    import mixpanel
+except ImportError:
+    if 'experiments.analytics.mixpanel.Mixpanel' in \
+       get_all_analytics_names():
+        traceback.print_exc()
+else:
+    from experiments.analytics.mixpanel import Mixpanel
+
+
+    class TestMixpanel(TestCase):
+        def setUp(self):
+            self.mox = mox.Mox()
+            self.analytics = Mixpanel()
+
+        def tearDown(self):
+            self.mox.UnsetStubs()
+
+        def test_id_from_user(self):
+            user = User.objects.create_user('user', 'user@example.com', 'user')
+            self.assertEqual(self.analytics._id_from_user(user),
+                             'User %d' % user.pk)
+            self.assertRaises(IdentificationError,
+                              self.analytics._id_from_user, None)
+
+        def test_id_from_session(self):
+            # With real session
+            with self.web_user(AnonymousUser()) as experiment_user:
+                self.mox.ReplayAll()
+                session = experiment_user.session
+                self.assertEqual(
+                    self.analytics._id_from_session(experiment_user.session),
+                    'Session %s' % session.session_key
+                )
+                self.mox.VerifyAll()
+
+            # With dict as session
+            experiment_user = StaticUser()
+            self.assertRaises(IdentificationError,
+                              self.analytics._id_from_session,
+                              experiment_user.session)
+
+        def test_compute_id(self):
+            # With anonymous WebUser
+            with self.web_user(AnonymousUser()) as experiment_user:
+                session = experiment_user.session
+                self.mox.ReplayAll()
+                self.assertEqual(self.analytics._compute_id(experiment_user),
+                                 'Session %s' % session.session_key)
+                self.mox.VerifyAll()
+
+            # With authenticated WebUser
+            user = User.objects.create_user('user', 'user@example.com', 'user')
+            with self.web_user(user) as experiment_user:
+                self.mox.ReplayAll()
+                self.assertEqual(self.analytics._compute_id(experiment_user),
+                                 'User %d' % user.id)
+                self.mox.VerifyAll()
+
+            # With StaticUser
+            experiment_user = StaticUser()
+            self.assertRaises(IdentificationError,
+                              self.analytics._compute_id, experiment_user)
+
+        def test_identify(self):
+            # With anonymous WebUser
+            with self.web_user(AnonymousUser()) as experiment_user:
+                self.mox.ReplayAll()
+                self.assertTrue(self.analytics._identify(experiment_user))
+                self.mox.VerifyAll()
+
+            # With authenticated WebUser
+            user = User.objects.create_user('user', 'user@example.com', 'user')
+            with self.web_user(user) as experiment_user:
+                self.mox.ReplayAll()
+                self.assertTrue(self.analytics._identify(experiment_user))
+                self.mox.VerifyAll()
+
+            # With StaticUser
+            experiment_user = StaticUser()
+            self.assertFalse(self.analytics._identify(experiment_user))
+
+        def test_enroll(self):
+            import time
+            experiment = Experiment.objects.create(name='Experiment')
+            user = User.objects.create_user('user', 'user@example.com', 'user')
+            tracker = self.mox.CreateMockAnything()
+            analytics = Mixpanel(tracker=tracker)
+            now = time.gmtime()
+            self.mox.StubOutWithMock(time, 'gmtime')
+            time.gmtime().AndReturn(now)
+            with self.web_user(user) as experiment_user:
+                properties = {'time': '%d' % time.mktime(now),
+                              'distinct_id': 'User %d' % user.pk,
+                              'Experiment': experiment.name,
+                              'Group': 'Test'}
+                tracker.run(event_name='Enrolled In Experiment',
+                            properties=properties)
+                self.mox.ReplayAll()
+                analytics.enroll(experiment=experiment,
+                                 experiment_user=experiment_user,
+                                 group_id=Participant.TEST_GROUP)
+                self.mox.VerifyAll()
+
+        def test_record(self):
+            import time
+            tracker = self.mox.CreateMockAnything()
+            analytics = Mixpanel(tracker=tracker)
+            now = time.gmtime()
+            self.mox.StubOutWithMock(time, 'gmtime')
+            time.gmtime().AndReturn(now)
+            with self.web_user(AnonymousUser()) as experiment_user:
+                properties = {
+                    'time': '%d' % time.mktime(now),
+                    'distinct_id': ('Session %s' %
+                                    experiment_user.session.session_key),
+                    'Goal Type': 'Goal Type'
+                }
+                tracker.run(event_name='Goal Recorded',
+                            properties=properties)
                 self.mox.ReplayAll()
                 goal_type = GoalType.objects.create(name='Goal Type')
                 goal_record = GoalRecord.record(goal_name=goal_type.name,
