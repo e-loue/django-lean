@@ -37,20 +37,13 @@ setup(
         'Programming Language :: Python',
         'Topic :: Software Development :: Libraries :: Python Modules'
     ],
-    packages=['experiments',
-        'experiments.analytics',
-        'experiments.management',
-        'experiments.management.commands',
-        'experiments.templatetags',
-        'experiments.migrations',
-        'experiments.tests',
-        'experiments.tests.data',
-        ],
+    packages=['django_lean.experiments'],
+    package_dir={'django_lean.experiments': 'django_lean/experiments'},
     package_data={
-       'experiments': ['templates/experiments/*.html',
-                       'templates/experiments/include/*.html',
-                       'templates/experiments/include/*.js'],
-       'experiments.tests': ['data/*.json']
-       },
+       'django_lean.experiments': ['templates/experiments/*.html',
+                                   'templates/experiments/include/*.html',
+                                   'templates/experiments/include/*.js',
+                                   'tests/data/*.json'],
+    },
     install_requires=['django >= 1.0', 'BeautifulSoup', 'mox'],
-    )
+)
