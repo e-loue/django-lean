@@ -4,8 +4,8 @@ import time
 
 from mixpanel.tasks import EventTracker
 
-from django_lean.experiments.analytics import IdentificationError
-from django_lean.experiments.analytics.base import BaseAnalytics
+from django_lean.lean_analytics import IdentificationError
+from django_lean.lean_analytics.base import BaseAnalytics
 
 
 class Mixpanel(BaseAnalytics):

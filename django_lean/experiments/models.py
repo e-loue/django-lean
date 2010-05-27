@@ -10,7 +10,6 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.core.exceptions import ObjectDoesNotExist
 
-from django_lean.experiments.analytics import get_all_analytics
 from django_lean.experiments.signals import goal_recorded, user_enrolled
 
 
@@ -319,20 +318,3 @@ class  DailyConversionReportGoalData(models.Model):
     test_conversion = models.IntegerField()
     control_conversion = models.IntegerField()
     confidence = models.FloatField(null=True)
-
-
-def analytics_goalrecord(sender, goal_record, experiment_user, *args, **kwargs):
-    for analytics in get_all_analytics():
-        analytics.record(goal_record=goal_record,
-                         experiment_user=experiment_user)
-
-goal_recorded.connect(analytics_goalrecord, sender=GoalRecord)
-
-def analytics_enrolled(sender, experiment, experiment_user, group_id,
-                       *args, **kwargs):
-    for analytics in get_all_analytics():
-        analytics.enroll(experiment=experiment,
-                         experiment_user=experiment_user,
-                         group_id=group_id)
-
-user_enrolled.connect(analytics_enrolled)

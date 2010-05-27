@@ -10,9 +10,9 @@ from django.test import TestCase as DjangoTestCase
 from django.utils.importlib import import_module
 from django.utils.functional import LazyObject
 
-from django_lean.experiments.analytics import reset_caches
 from django_lean.experiments.loader import ExperimentLoader
 from django_lean.experiments.models import Participant
+from django_lean.lean_analytics import reset_caches
 
 
 def get_session(session_key):

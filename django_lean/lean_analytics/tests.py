@@ -6,18 +6,17 @@ from django.conf import settings
 from django.contrib.auth.models import AnonymousUser, User
 from django.http import HttpRequest
 
-from django_lean.experiments.analytics import (get_all_analytics,
-                                               get_all_analytics_names,
-                                               reset_caches,
-                                               IdentificationError)
-from django_lean.experiments.analytics.base import BaseAnalytics
 from django_lean.experiments.models import (AnonymousVisitor, Experiment,
                                             GoalRecord, GoalType, Participant)
 from django_lean.experiments.tests.utils import get_session, patch, TestCase
 from django_lean.experiments.utils import StaticUser, WebUser
+from django_lean.lean_analytics import (get_all_analytics,
+                                        get_all_analytics_names,
+                                        reset_caches,
+                                        IdentificationError)
+from django_lean.lean_analytics.base import BaseAnalytics
 
 import mox
-
 
 class TestAnalytics(TestCase):
     def test_get_all_analytics_names(self):
@@ -53,11 +52,11 @@ class TestAnalytics(TestCase):
 try:
     import django_kissmetrics
 except ImportError:
-    if 'experiments.analytics.kissmetrics.KissMetrics' in \
+    if 'django_lean.lean_analytics.kissmetrics.KissMetrics' in \
        get_all_analytics_names():
         traceback.print_exc()
 else:
-    from django_lean.experiments.analytics.kissmetrics import KissMetrics
+    from django_lean.lean_analytics.kissmetrics import KissMetrics
 
 
     class TestKissMetrics(TestCase):
@@ -190,11 +189,11 @@ else:
 try:
     import mixpanel
 except ImportError:
-    if 'experiments.analytics.mixpanel.Mixpanel' in \
+    if 'django_lean.lean_analytics.mixpanel.Mixpanel' in \
        get_all_analytics_names():
         traceback.print_exc()
 else:
-    from django_lean.experiments.analytics.mixpanel import Mixpanel
+    from django_lean.lean_analytics.mixpanel import Mixpanel
 
 
     class TestMixpanel(TestCase):

@@ -1,7 +1,7 @@
 from django_kissmetrics.middleware import TrackingMiddleware
 
-from django_lean.experiments.analytics import IdentificationError
-from django_lean.experiments.analytics.base import BaseAnalytics
+from django_lean.lean_analytics import IdentificationError
+from django_lean.lean_analytics.base import BaseAnalytics
 
 
 class KissMetrics(BaseAnalytics):

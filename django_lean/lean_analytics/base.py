@@ -1,6 +1,6 @@
-from django_lean.experiments.analytics import IdentificationError
 from django_lean.experiments.models import Participant
 from django_lean.experiments.utils import WebUser
+from django_lean.lean_analytics import IdentificationError
 
 
 class BaseAnalytics(object):
