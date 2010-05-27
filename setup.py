@@ -13,7 +13,7 @@ description, long_description = __doc__.split('\n\n', 1)
 
 setup(
     name='django-lean',
-    version='0.5',
+    version='0.6',
     author='Akoha, Inc.',
     author_email='django-lean@akoha.com',
     description=('A framework for performing and analyzing split-test ' +
@@ -46,6 +46,9 @@ setup(
         'django_lean.experiments.templatetags',
         'django_lean.experiments.tests',
         'django_lean.lean_analytics',
+        'django_lean.lean_retention',
+        'django_lean.lean_retention.migrations',
+        'django_lean.lean_retention.tests',
     ],
     package_data={
         'django_lean.experiments': ['templates/experiments/*.html',
