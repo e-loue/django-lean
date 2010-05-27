@@ -2,5 +2,5 @@ include LICENSE
 include AUTHORS
 include README
 
-recursive-include experiments/templates *.html *.js
-recursive-include experiments/tests/data *.json
+recursive-include django_lean/experiments/templates *.html *.js
+recursive-include django_lean/experiments/tests/data *.json

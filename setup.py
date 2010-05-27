@@ -13,7 +13,7 @@ description, long_description = __doc__.split('\n\n', 1)
 
 setup(
     name='django-lean',
-    version='0.4',
+    version='0.5',
     author='Akoha, Inc.',
     author_email='django-lean@akoha.com',
     description=('A framework for performing and analyzing split-test ' +
@@ -37,13 +37,21 @@ setup(
         'Programming Language :: Python',
         'Topic :: Software Development :: Libraries :: Python Modules'
     ],
-    packages=['django_lean.experiments'],
-    package_dir={'django_lean.experiments': 'django_lean/experiments'},
+    packages=[
+      'django_lean',
+      'django_lean.experiments',
+      'django_lean.experiments.management',
+      'django_lean.experiments.management.commands',
+      'django_lean.experiments.migrations',
+      'django_lean.experiments.templatetags',
+      'django_lean.experiments.tests',
+      'django_lean.lean_analytics',
+    ],
     package_data={
-       'django_lean.experiments': ['templates/experiments/*.html',
-                                   'templates/experiments/include/*.html',
-                                   'templates/experiments/include/*.js',
-                                   'tests/data/*.json'],
+      'django_lean.experiments': ['templates/experiments/*.html',
+                                  'templates/experiments/include/*.html',
+                                  'templates/experiments/include/*.js'],
+      'django_lean.experiments.tests': ['data/*.json'],
     },
     install_requires=['django >= 1.0', 'BeautifulSoup', 'mox'],
 )
