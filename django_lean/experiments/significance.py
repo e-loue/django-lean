@@ -28,7 +28,7 @@ def chi_square_p_value(matrix):
     try:
         from scipy.stats import chisqprob
     except ImportError:
-        from experiments.stats import chisqprob
+        from django_lean.experiments.stats import chisqprob
     num_rows = len(matrix)
     num_columns = len(matrix[0])
     

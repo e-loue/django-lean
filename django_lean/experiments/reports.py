@@ -255,7 +255,7 @@ class EngagementReportGenerator(BaseReportGenerator):
             from numpy import mean, isnan
             from scipy.stats import ttest_ind
         except ImportError:
-            from experiments.stats import mean, isnan, ttest_ind 
+            from django_lean.experiments.stats import mean, isnan, ttest_ind 
         test_group_scores = self.__generate_scores(
             experiment, Participant.TEST_GROUP, report_date)
         control_group_scores = self.__generate_scores(
