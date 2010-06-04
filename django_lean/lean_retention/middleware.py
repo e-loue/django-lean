@@ -2,13 +2,11 @@ from datetime import datetime, timedelta
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
-from django.core import mail
-from django.db import transaction
 
 from django_lean.lean_retention.models import (DailyActivity, LastActivity,
                                                SignIn)
 from django_lean.lean_retention import signals
-from django_lean.utils import get_current_site
+from django_lean.utils import get_current_site, in_transaction
 
 
 class BaseTrackingMiddleware(object):
@@ -19,9 +17,7 @@ class BaseTrackingMiddleware(object):
         return 'Default'
 
     def process_response(self, request, response):
-        if transaction.is_managed() and not hasattr(mail, 'outbox'):
-            # We must ignore this assertion when running inside a
-            # Django test case, which uses transactions.
+        if in_transaction():
             raise ImproperlyConfigured('%s cannot be inside a transaction.' %
                                        self.__class__.__name__)
         if response.status_code != 200:
