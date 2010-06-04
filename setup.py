@@ -51,6 +51,7 @@ setup(
         'django_lean.lean_retention.tests',
         'django_lean.lean_segments',
         'django_lean.lean_segments.management',
+        'django_lean.lean_segments.management.commands',
     ],
     package_data={
         'django_lean.experiments': ['templates/experiments/*.html',
