@@ -1,3 +1,5 @@
+from __future__ import with_statement
+
 from datetime import date, datetime, timedelta
 
 from django.conf import settings
