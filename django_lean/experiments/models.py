@@ -223,6 +223,9 @@ class Experiment(models.Model):
     @classmethod
     def __test_group(cls, experiment_name, experiment_user, queried_group):
         """does the real work"""
+        from django_lean.experiments.loader import ExperimentLoader
+        ExperimentLoader.load_all_experiments()
+
         experiment = None
         try:
             experiment = Experiment.objects.get(name=experiment_name)

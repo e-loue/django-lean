@@ -15,18 +15,22 @@ class ExperimentLoader(object):
     NAME_ATTRIBUTE="name"
     ALLOWED_ATTRIBUTES=[NAME_ATTRIBUTE]
     APPLICATION_RELATIVE_EXPERIMENT_FILE = "%sexperiments.json" % os.sep
-    
-    @staticmethod
-    def load_all_experiments(apps=settings.INSTALLED_APPS):
+    __loaded = False
+
+    @classmethod
+    def load_all_experiments(cls, apps=settings.INSTALLED_APPS):
         """
         Loads experiments for all applications in settings.INSTALLED_APPS
         """
-        for app_name in apps:
-            application_path = os.path.dirname(sys.modules[app_name].__file__)
-            application_experiment_file_path = (application_path +
-                ExperimentLoader.APPLICATION_RELATIVE_EXPERIMENT_FILE)
-            if os.access(application_experiment_file_path, os.F_OK):
-                ExperimentLoader.load_experiments(application_experiment_file_path)
+        if not cls.__loaded:
+            cls.__loaded = True
+            for app_name in apps:
+                application_path = os.path.dirname(sys.modules[app_name].__file__)
+                application_experiment_file_path = (
+                    application_path +
+                    ExperimentLoader.APPLICATION_RELATIVE_EXPERIMENT_FILE)
+                if os.access(application_experiment_file_path, os.F_OK):
+                    ExperimentLoader.load_experiments(application_experiment_file_path)
     
     @staticmethod
     def load_experiments(filename):
