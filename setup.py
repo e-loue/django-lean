@@ -55,10 +55,8 @@ setup(
     ],
     package_data={
         'django_lean.experiments': ['media/experiments/*.js',
-                                    'media/experiments/*.html',
                                     'templates/experiments/*.html',
-                                    'templates/experiments/include/*.html',
-                                    'templates/experiments/include/*.js'],
+                                    'templates/experiments/include/*.html'],
         'django_lean.experiments.tests': ['data/*.json'],
     },
     install_requires=['django >= 1.0', 'BeautifulSoup', 'mox'],
