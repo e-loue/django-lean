@@ -13,7 +13,7 @@ description, long_description = __doc__.split('\n\n', 1)
 
 setup(
     name='django-lean',
-    version='0.12',
+    version='0.13',
     author='Akoha, Inc.',
     author_email='django-lean@akoha.com',
     description=('A framework for performing and analyzing split-test ' +
