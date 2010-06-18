@@ -54,7 +54,9 @@ setup(
         'django_lean.lean_segments.management.commands',
     ],
     package_data={
-        'django_lean.experiments': ['templates/experiments/*.html',
+        'django_lean.experiments': ['media/experiments/*.js',
+                                    'media/experiments/*.html',
+                                    'templates/experiments/*.html',
                                     'templates/experiments/include/*.html',
                                     'templates/experiments/include/*.js'],
         'django_lean.experiments.tests': ['data/*.json'],
