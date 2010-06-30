@@ -95,7 +95,7 @@ class ExperimentTagsTest(TestCase):
         internal_render_result = "rendered"
         parser = self.mox.CreateMockAnything()
         child_node_list = self.mox.CreateMockAnything()
-        context = self.mox.CreateMockAnything()
+        context = {}
         user_factory = self.mox.CreateMockAnything()
         token = self.mox.CreateMockAnything()
         token.split_contents().AndReturn(token_tuple)

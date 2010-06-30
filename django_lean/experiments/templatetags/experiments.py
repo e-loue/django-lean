@@ -19,6 +19,14 @@ class BaseExperimentNode(template.Node):
     def create_user(self, context):
         return self.__user_factory.create_user(context)
 
+    def get_user(self, context):
+        request = context.get('request', None)
+        if request is None:
+            return self.create_user(context)
+        if not hasattr(request, 'experiment_user'):
+            request.experiment_user = self.create_user(context)
+        return request.experiment_user
+
 
 class ExperimentNode(BaseExperimentNode):
     def __init__(self, node_list, experiment_name, group_name, user_factory):
@@ -26,9 +34,9 @@ class ExperimentNode(BaseExperimentNode):
         self.node_list = node_list
         self.experiment_name = experiment_name
         self.group_name = group_name
-    
+
     def render(self, context):
-        user = self.create_user(context)
+        user = self.get_user(context)
         should_render = False
         
         if self.group_name == "test":
