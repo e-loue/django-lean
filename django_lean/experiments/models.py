@@ -298,8 +298,8 @@ class DailyEngagementReport(models.Model):
     experiment = models.ForeignKey(Experiment)
     test_score = models.FloatField(null=True)
     control_score = models.FloatField(null=True)
-    test_group_size = models.IntegerField()
-    control_group_size = models.IntegerField()
+    test_group_size = models.IntegerField(default=0)
+    control_group_size = models.IntegerField(default=0)
     confidence = models.FloatField(null=True)
 
 

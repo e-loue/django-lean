@@ -68,12 +68,12 @@ class Migration:
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'})
         },
         'experiments.dailyreport': {
-            'control_group_size': ('django.db.models.fields.IntegerField', [], {}),
+            'control_group_size': ('django.db.models.fields.IntegerField', [], {'default':0}),
             'control_score': ('django.db.models.fields.FloatField', [], {}),
             'date': ('django.db.models.fields.DateField', [], {}),
             'experiment': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['experiments.Experiment']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'test_group_size': ('django.db.models.fields.IntegerField', [], {}),
+            'test_group_size': ('django.db.models.fields.IntegerField', [], {'default':0}),
             'test_score': ('django.db.models.fields.FloatField', [], {})
         },
         'experiments.experiment': {
