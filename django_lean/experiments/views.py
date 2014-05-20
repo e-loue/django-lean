@@ -45,7 +45,7 @@ def record_experiment_goal(request, goal_name):
     except Exception, e:
         l.warn("unknown goal type '%s': %s" % (goal_name, e))
     
-    return HttpResponse(TRANSPARENT_1X1_PNG, mimetype="image/png")
+    return HttpResponse(TRANSPARENT_1X1_PNG, content_type="image/png")
 
 def list_experiments(request, template_name='experiments/list_experiments.html'):
     """docstring for list_experiments"""

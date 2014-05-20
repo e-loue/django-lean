@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
-from django.conf.urls.defaults import *
+# Django 1.6 fix
+try:
+    from django.conf.urls import *
+except ImportError:
+    from django.conf.urls.defaults import *
 from django.contrib.admin.views.decorators import staff_member_required
 
 from django_lean.experiments.views import experiment_details, list_experiments

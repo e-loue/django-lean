@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
-from django.conf.urls.defaults import *
+# Django 1.6 fix
+try:
+    from django.conf.urls import *
+except ImportError:
+    from django.conf.urls.defaults import *
 
 
 urlpatterns = patterns('django_lean.experiments.tests.views',
