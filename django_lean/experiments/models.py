@@ -6,12 +6,12 @@ from datetime import date
 import random
 
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.db import models
 from django.core.exceptions import ObjectDoesNotExist
 
 from django_lean.experiments.signals import goal_recorded, user_enrolled
 
+AUTH_USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
 
 class AnonymousVisitor(models.Model):
     """An anonymous visitor"""
@@ -271,7 +271,7 @@ class Participant(models.Model):
         (CONTROL_GROUP, "Control"),
         (TEST_GROUP, "Test"))
 
-    user = models.ForeignKey(User, null=True)
+    user = models.ForeignKey(AUTH_USER_MODEL, null=True)
     experiment = models.ForeignKey(Experiment)
     enrollment_date = models.DateField(db_index=True, auto_now_add=True)
     group = models.IntegerField(choices=GROUPS)
